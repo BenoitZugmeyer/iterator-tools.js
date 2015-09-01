@@ -1,0 +1,21 @@
+{
+  "name": "itertools",
+  "version": "1.0.0-dev",
+  "description": "Iterator tools for JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "babel-node $(npm bin)/jasmine",
+    "lint": "eslint index.js spec || true"
+  },
+  "keywords": [
+    "iterator",
+    "itertools",
+    "python"
+  ],
+  "author": "Benoît Zugmeyer <benoit@zugmeyer.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "jasmine": "^2.3.2"
+  }
+}
