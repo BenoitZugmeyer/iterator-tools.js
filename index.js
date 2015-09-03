@@ -1,3 +1,23 @@
+const assert = (test, message) => {
+  if (!test) throw new Error(message);
+};
+const assertType = (value, type, subject) => {
+  assert(typeof value === type, `${subject} must be a ${type}`);
+};
+
+const assertInteger = (value, subject) => {
+  assert(Math.floor(value) === value, `${subject} must be an integer`);
+};
+
+const assertPositive = (value, subject) => {
+  assert(value >= 0, `${subject} must be positive`);
+};
+
+const assertStrictlyPositive = (value, subject) => {
+  assert(value > 0, `${subject} must be strictly positive`);
+};
+
+
 const DONE = Object.freeze({
   done: true,
   value: undefined,
@@ -27,11 +47,29 @@ const makeIterator = (next) => ({
 
 const emptyIterator = makeIterator(() => DONE);
 
-export const range = (start, stop, step=1) => {
+const sliceArgs = (start, stop, step) => {
+
   if (stop === undefined) {
     stop = start;
     start = 0;
   }
+
+  if (start === undefined) start = 0;
+  if (stop === undefined) stop = Infinity;
+  if (step === undefined) step = 1;
+
+  assertType(start, "number", "start");
+  assertType(stop, "number", "stop");
+  assertType(step, "number", "step");
+  assert(step !== 0, "step must be different than zero");
+
+  return [start, stop, step];
+};
+
+export const range = (start, stop, step) => {
+  assertType(start, "number", "start");
+
+  [start, stop, step] = sliceArgs(start, stop, step);
 
   let i = start;
 
@@ -86,14 +124,34 @@ export const chain = (iterable, otherIterable=emptyIterator) => {
   });
 };
 
-export const take = (iterable, n) => {
+export const islice = (iterable, start, stop, step) => {
+
+  [start, stop, step] = sliceArgs(start, stop, step);
+
+  assertPositive(start, "start");
+  assertPositive(stop, "stop");
+  assertPositive(step, "step");
+  assertInteger(start, "start");
+  assertInteger(stop, "stop");
+  assertInteger(step, "step");
+
   const iterator = iter(iterable);
   let i = 0;
+  let nexti = start;
+
+  if (start + step >= stop) return emptyIterator;
 
   return makeIterator(() => {
-    if (i >= n) return DONE;
-    i += 1;
-    return iterator.next();
+    if (i >= stop) return DONE;
+
+    let item;
+    do {
+      item = iterator.next();
+      i += 1;
+    } while (!item.done && i <= nexti);
+
+    nexti += step;
+    return item;
   });
 };
 

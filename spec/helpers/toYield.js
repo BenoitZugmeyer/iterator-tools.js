@@ -9,23 +9,44 @@ const pp = (chunks, ...vars) => {
 const FAIL = (message) => ({ pass: false, message });
 const SUCCESS = { pass: true };
 
+const compare = (util, customEqualityTesters, actual, expected) => {
+    for (const actualValue of actual) {
+        const expectedItem = expected.next();
+
+        if (expectedItem.done) return FAIL(pp`Yielded extra value ${actualValue}`);
+
+        const expectedValue = expectedItem.value;
+        const result = util.equals(actualValue, expectedValue, customEqualityTesters);
+
+        if (!result) return FAIL(pp`Yielded ${actualValue}, expected ${expectedValue}`);
+    }
+
+    const expectedItem = expected.next();
+    if (!expectedItem.done) return FAIL(pp`Expected to yield ${expectedItem.value}`);
+
+    return SUCCESS;
+};
+
 beforeEach(() => {
+
   jasmine.addMatchers({
+
     toYield(util, customEqualityTesters) {
       return {
         compare(actual, ...expected) {
-          for (const value of actual) {
-            if (!expected.length) return FAIL(pp`Yielded extra value ${value}`);
-
-            const next = expected.shift();
-            const result = util.equals(value, next, customEqualityTesters);
-
-            if (!result) return FAIL(pp`Yielded ${value}, expected ${next}`);
-          }
-          if (expected.length) return FAIL(pp`Expected to yield ${expected}`);
-          return SUCCESS;
+            return compare(util, customEqualityTesters, actual, expected[Symbol.iterator]());
         },
       };
     },
+
+    toYieldFromIterator(util, customEqualityTesters) {
+        return {
+            compare(actual, expected) {
+                return compare(util, customEqualityTesters, actual, expected);
+            },
+        };
+    },
+
   });
+
 });
