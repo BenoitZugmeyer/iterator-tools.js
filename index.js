@@ -36,169 +36,212 @@ const iter = (value) => {
   return result;
 };
 
-const makeIterator = (next) => {
-  let item;
-  let done;
+const factory = (Cls) => (a, b, c, d, e, f) => new Cls(a, b, c, d, e, f);
 
-  const yieldValue = (value) => {
-    if (!done) throw new Error("Called yieldValue twice");
-    done = false;
-    if (item) item.value = value;
-    else item = { value, done };
-  };
+class Iterator {
 
-  return {
-    next() {
-      if (!item || !item.done) {
-        done = true;
-        next(yieldValue);
-        if (done) item = DONE;
-      }
-      return item;
-    },
-    [Symbol.iterator]() {
-      return this;
-    },
-  };
-};
-
-const emptyIterator = makeIterator(() => {});
-
-const sliceArgs = (start, stop, step) => {
-
-  if (stop === undefined) {
-    stop = start;
-    start = 0;
+  constructor() {
+    this._item = undefined;
+    this._done = false;
   }
 
-  if (start === undefined) start = 0;
-  if (stop === undefined) stop = Infinity;
-  if (step === undefined) step = 1;
+  _yieldValue(value) {
+    if (!this._done) throw new Error("Called yieldValue twice");
+    this._done = false;
+    if (this._item) this._item.value = value;
+    else this._item = { value, done: false };
+  }
 
-  assertType(start, "number", "start");
-  assertType(stop, "number", "stop");
-  assertType(step, "number", "step");
-  assertNonZero(step, "step");
-
-  return [start, stop, step];
-};
-
-export const range = (start, stop, step) => {
-  assertType(start, "number", "start");
-
-  [start, stop, step] = sliceArgs(start, stop, step);
-
-  let i = start;
-
-  return makeIterator((yieldValue) => {
-    if (step > 0 ? i >= stop : i <= stop) return;
-    yieldValue(i);
-    i += step;
-  });
-};
-
-export const accumulate = (iterable, fn=add) => {
-  const iterator = iter(iterable);
-  let acc;
-  let first = true;
-
-  return makeIterator((yieldValue) => {
-    const item = iterator.next();
-    if (item.done) return;
-
-    if (first) {
-      first = false;
-      acc = item.value;
-    }
-    else {
-      acc = fn(acc, item.value);
+  _sliceArgs(start, stop, step) {
+    if (stop === undefined) {
+      stop = start;
+      start = 0;
     }
 
-    yieldValue(acc);
-  });
-};
+    if (start === undefined) start = 0;
+    if (stop === undefined) stop = Infinity;
+    if (step === undefined) step = 1;
 
-export const chain = (...iterables) => chainFromIterable(iterables);
+    assertType(start, "number", "start");
+    assertType(stop, "number", "stop");
+    assertType(step, "number", "step");
+    assertNonZero(step, "step");
 
-export const chainFromIterable = (iterable) => {
-  const iterator = iter(iterable);
-  let currentIterator;
+    this._start = start;
+    this._stop = stop;
+    this._step = step;
+  }
 
-  return makeIterator((yieldValue) => {
+  next() {
+    if (!this._done) {
+      this._done = true;
+      this._next();
+      if (this._done) this._item = DONE;
+    }
+    return this._item;
+  }
+
+  [Symbol.iterator]() {
+    return this;
+  }
+
+}
+
+class RangeIterator extends Iterator {
+
+  constructor(start, stop, step) {
+    super();
+    assertType(start, "number", "start");
+    this._sliceArgs(start, stop, step);
+    this._i = this._start;
+  }
+
+  _next() {
+    if (this._step > 0 ? this._i < this._stop : this._i > this._stop) {
+      this._yieldValue(this._i);
+      this._i += this._step;
+    }
+  }
+
+}
+
+class AccumulateIterator extends Iterator {
+
+  constructor(iterable, fn=add) {
+    super();
+    this._iterator = iter(iterable);
+    this._acc = undefined;
+    this._first = true;
+    this._fn = fn;
+  }
+
+  _next() {
+    const item = this._iterator.next();
+    if (!item.done) {
+      if (this._first) {
+        this._first = false;
+        this._acc = item.value;
+      }
+      else {
+        this._acc = this._fn(this._acc, item.value);
+      }
+
+      this._yieldValue(this._acc);
+    }
+  }
+
+}
+
+class IsliceIterator extends Iterator {
+
+  constructor(iterable, start, stop, step) {
+    super();
+
+    this._sliceArgs(start, stop, step);
+    assertPositive(this._start, "start");
+    assertPositive(this._stop, "stop");
+    assertPositive(this._step, "step");
+    assertInteger(this._start, "start");
+    assertInteger(this._stop, "stop");
+    assertInteger(this._step, "step");
+
+    this._iterator = iter(iterable);
+    this._i = 0;
+    this._nexti = this._start;
+  }
+
+  _next() {
     while (true) {
-      if (currentIterator) {
-        const item = currentIterator.next();
+      if (this._i >= this._stop) return;
+
+      const item = this._iterator.next();
+      if (item.done) return;
+
+      this._i += 1;
+
+      if (this._i > this._nexti) {
+        this._nexti += this._step;
+        return this._yieldValue(item.value);
+      }
+    }
+  }
+
+}
+
+class ChainIterator extends Iterator {
+
+  constructor(iterables) {
+    super();
+    this._iterator = iter(iterables);
+    this._currentIterator = undefined;
+  }
+
+  _next() {
+    while (true) {
+      if (this._currentIterator) {
+        const item = this._currentIterator.next();
         // If the current iterator isn't exhausted, return the item
-        if (!item.done) return yieldValue(item.value);
+        if (!item.done) return this._yieldValue(item.value);
       }
 
       // Get next iterator
-      const currentIterableItem = iterator.next();
+      const currentIterableItem = this._iterator.next();
       if (currentIterableItem.done) return;
-      currentIterator = iter(currentIterableItem.value);
+      this._currentIterator = iter(currentIterableItem.value);
     }
-  });
-};
+  }
 
-export const islice = (iterable, start, stop, step) => {
+}
 
-  [start, stop, step] = sliceArgs(start, stop, step);
+class CountIterator extends Iterator {
 
-  assertPositive(start, "start");
-  assertPositive(stop, "stop");
-  assertPositive(step, "step");
-  assertInteger(start, "start");
-  assertInteger(stop, "stop");
-  assertInteger(step, "step");
+  constructor(start=0, step=1) {
+    super();
+    assertType(start, "number", "start");
+    assertType(step, "number", "step");
+    assertNonZero(step, "step");
+    this._i = start;
+    this._step = step;
+  }
 
-  const iterator = iter(iterable);
-  let i = 0;
-  let nexti = start;
+  _next() {
+    this._yieldValue(this._i);
+    this._i += this._step;
+  }
 
-  return makeIterator((yieldValue) => {
-    while (true) {
-      if (i >= stop) return;
+}
 
-      const item = iterator.next();
-      if (item.done) return;
+class ZipIterator extends Iterator {
 
-      i += 1;
+  constructor(iterables) {
+    super();
+    this._iterators = iterables.map(iter);
+    this._value = [];
+  }
 
-      if (i > nexti) {
-        nexti += step;
-        return yieldValue(item.value);
+  _next() {
+    const l = this._iterators.length;
+    if (l) {
+      let i = 0;
+      for (; i < l; i++) {
+        const item = this._iterators[i].next();
+        if (item.done) return;
+        this._value[i] = item.value;
       }
+      this._yieldValue(this._value);
     }
-  });
-};
+  }
 
-export const zip = (...iterables) => {
-  if (!iterables.length) return emptyIterator;
-  const iterators = iterables.map(iter);
-  const value = [];
-  return makeIterator((yieldValue) => {
-    const l = iterators.length;
-    let i = 0;
-    for (; i < l; i++) {
-      const item = iterators[i].next();
-      if (item.done) return;
-      value[i] = item.value;
-    }
-    return yieldValue(value);
-  });
-};
+}
 
-export const count = (start=0, step=1) => {
-  assertType(start, "number", "start");
-  assertType(step, "number", "step");
-  assertNonZero(step, "step");
-  let i = start;
+export const range = factory(RangeIterator);
+export const accumulate = factory(AccumulateIterator);
+export const islice = factory(IsliceIterator);
+export const chain = (...iterables) => new ChainIterator(iterables);
+export const chainFromIterable = factory(ChainIterator);
+export const count = factory(CountIterator);
+export const zip = (...iterables) => new ZipIterator(iterables);
 
-  return makeIterator((yieldValue) => {
-    yieldValue(i);
-    i += step;
-  });
-};
 
 // DRAFT
 
