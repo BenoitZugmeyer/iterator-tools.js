@@ -49,7 +49,6 @@ Functions
     combinationsWithReplacement('ABC', 2)  // AA AB AC BB BC CC
 
 **TODO** :code:`compress(data, selectors)`
-
   Make an iterator that filters elements from :code:`data` returning only those that have a
   corresponding element in :code:`selectors` that evaluates to :code:`true`. Stops when either the
   data or selectors iterables has been exhausted.
@@ -108,7 +107,6 @@ Functions
 :code:`islice(iterable, stop=Infinity)`
 
 :code:`islice(iterable, start=0, stop=Infinity, step=1)`
-
   Make an iterator that returns selected elements from the :code:`iterable`. If :code:`start` is
   non-zero, then elements from the iterable are skipped until :code:`start` is reached. Afterward,
   elements are returned consecutively unless :code:`step` is set higher than one which results in
@@ -122,7 +120,6 @@ Functions
     islice('ABCDEFG', 0, Infinity, 2)  // A C E G
 
 **TODO** :code:`permutations(iterable, r=undefined)`
-
   Return successive :code:`r` length permutations of elements in the :code:`iterable`.
 
   If :code:`r` is undefined, :code:`r` defaults to the length of the :code:`iterable` and all
@@ -135,7 +132,6 @@ Functions
 
 
 **TODO** :code:`product(...iterables, repeat=1)`
-
   Cartesian product of input :code:`iterables`. To compute the product of an iterable with itself,
   specify the number of repetitions with the optional :code:`repeat` argument.
 
@@ -148,7 +144,6 @@ Functions
 :code:`range(stop)`
 
 :code:`range(start, stop, step=1)`
-
   Make an iterator that returns a number starting from :code:`start` to :code:`stop`, incremented by
   :code:`step`.
 
@@ -164,7 +159,6 @@ Functions
 
 
 **TODO** :code:`repeat(element, times=Infinity)`
-
   Make an iterator that returns :code:`element` over and over again. Runs indefinitely unless the
   :code:`times` argument is specified.
 
@@ -173,7 +167,6 @@ Functions
     repeat(10, 3)  // 10 10 10
 
 **TODO** :code:`starmap(iterable, function)`
-
   Make an iterator that computes the :code:`function` using arguments obtained from the
   :code:`iterable`. Used instead of :code:`map()` when argument parameters are already grouped in
   arrays from a single :code:`iterable`.
@@ -184,7 +177,6 @@ Functions
 
 
 **TODO** :code:`takewhile(iterable, predicate=(i) => i)`
-
   Make an iterator that returns elements from the :code:`iterable` as long as the :code:`predicate`
   is true.
 
@@ -194,7 +186,6 @@ Functions
 
 
 **TODO** :code:`tee(iterable, n=2)`
-
   Return :code:`n` independent iterators from a single :code:`iterable`.
 
   .. code:: javascript
@@ -206,7 +197,6 @@ Functions
 
 
 :code:`zip(...iterables)`
-
   Make an iterator that aggregates elements from each of the :code:`iterables`. Returns an iterator
   of arrays, where the i-th array contains the i-th element from each of the argument iterables. The
   iterator stops when the shortest input iterable is exhausted. With a single iterable argument, it
@@ -217,7 +207,6 @@ Functions
     zip('ABCD', 'xy')  // [A, x] [B, y]
 
 **TODO** :code:`zipLongest(...iterables)`
-
   Make an iterator that aggregates elements from each of the :code:`iterables`. If the
   :code:`iterables` are of uneven length, missing values are filled-in with :code:`undefined`.
 
