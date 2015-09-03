@@ -22,6 +22,11 @@ const assertIterable = (value) => {
          `${value} is not iterable`);
 };
 
+const assertIterator = (value) => {
+  assert(value !== null && value !== undefined && typeof value.next === "function",
+         `${value} is not an iterator`);
+};
+
 
 const DONE = Object.freeze({
   done: true,
@@ -33,9 +38,8 @@ const add = (a, b) => a + b;
 const iter = (value) => {
   assertIterable(value);
   const result = value[Symbol.iterator]();
-  if (result === null || value === undefined || typeof result.next !== "function") {
-    throw new TypeError(`${result} is not an iterator`);
-  }
+  assertIterator(result);
+
   return result;
 };
 
@@ -49,7 +53,7 @@ class Iterator {
   }
 
   _yieldValue(value) {
-    if (!this._done) throw new Error("Called yieldValue twice");
+    assert(this._done, "Called yieldValue twice");
     this._done = false;
     if (this._item) this._item.value = value;
     else this._item = { value, done: false };
