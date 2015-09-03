@@ -102,25 +102,25 @@ export const accumulate = (iterable, fn=add) => {
   });
 };
 
-export const chain = (iterable, otherIterable=emptyIterator) => {
+export const chain = (...iterables) => chainFromIterable(iterables);
+
+export const chainFromIterable = (iterable) => {
   const iterator = iter(iterable);
-  const otherIterator = iter(otherIterable);
-  let firstIsExhausted = false;
+  let currentIterator;
 
   return makeIterator(() => {
-    let item;
-    if (!firstIsExhausted) {
-      item = iterator.next();
-      if (item.done) {
-        firstIsExhausted = true;
-        item = otherIterator.next();
+    while (true) {
+      if (currentIterator) {
+        const item = currentIterator.next();
+        // If the current iterator isn't exhausted, return the item
+        if (!item.done) return item;
       }
-    }
-    else {
-      item = otherIterator.next();
-    }
 
-    return item;
+      // Get next iterator
+      const currentIterableItem = iterator.next();
+      if (currentIterableItem.done) return DONE;
+      currentIterator = iter(currentIterableItem.value);
+    }
   });
 };
 
@@ -155,8 +155,6 @@ export const islice = (iterable, start, stop, step) => {
   });
 };
 
-// TODO
-export const chain_from_iterable = () => emptyIterator;
 
 // DRAFT
 

@@ -7,7 +7,7 @@ import {
   range,
   chain,
   islice,
-  chain_from_iterable,
+  chainFromIterable,
   count,
 } from "../index";
 
@@ -123,17 +123,17 @@ describe("itertools", () => {
     expect(chain("abc", "def")).toYield("a", "b", "c", "d", "e", "f");
     expect(chain("abc")).toYield("a", "b", "c");
     expect(chain("")).toYield();
+    expect(chain("a", "b", "c")).toYield("a", "b", "c");
     expect(islice(chain("abc", "def"), 4)).toYield("a", "b", "c", "d");
-    expect(() => chain(2, 3)).toThrowError(Error, "2 is not iterable");
+    expect(() => chain(2, 3).next()).toThrowError(Error, "2 is not iterable");
   });
 
-  it("chain_from_iterable", () => {
-    pending("TODO: implement chain_from_iterable");
-
-    expect(chain_from_iterable(["abc", "def"])).toYield("a", "b", "c", "d", "e", "f");
-    expect(chain_from_iterable(["abc"])).toYield("a", "b", "c");
-    expect(chain_from_iterable([""])).toYield();
-    expect(islice(chain_from_iterable(["abc", "def"]), 4)).toYield("a", "b", "c", "d");
-    expect(() => chain_from_iterable([2, 3])).toThrowError(Error, "2 is not iterable");
+  it("chainFromIterable", () => {
+    expect(chainFromIterable(["abc", "def"])).toYield("a", "b", "c", "d", "e", "f");
+    expect(chainFromIterable(["abc"])).toYield("a", "b", "c");
+    expect(chainFromIterable([""])).toYield();
+    expect(chainFromIterable(["", "ab", "", "c"])).toYield("a", "b", "c");
+    expect(islice(chainFromIterable(["abc", "def"]), 4)).toYield("a", "b", "c", "d");
+    expect(() => chainFromIterable([2, 3]).next()).toThrowError(Error, "2 is not iterable");
   });
 });
