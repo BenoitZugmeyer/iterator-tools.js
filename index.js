@@ -139,19 +139,20 @@ export const islice = (iterable, start, stop, step) => {
   let i = 0;
   let nexti = start;
 
-  if (start + step >= stop) return emptyIterator;
-
   return makeIterator(() => {
-    if (i >= stop) return DONE;
+    while (true) {
+      if (i >= stop) return DONE;
 
-    let item;
-    do {
-      item = iterator.next();
+      const item = iterator.next();
+      if (item.done) return DONE;
+
       i += 1;
-    } while (!item.done && i <= nexti);
 
-    nexti += step;
-    return item;
+      if (i > nexti) {
+        nexti += step;
+        return item;
+      }
+    }
   });
 };
 
