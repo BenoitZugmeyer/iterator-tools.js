@@ -104,9 +104,7 @@ Functions
                                 // A, A A
                                 // B, B B
 
-:code:`islice(iterable, stop=Infinity)`
-
-:code:`islice(iterable, start=0, stop=Infinity, step=1)`
+:code:`islice(iterable, stop=Infinity)` or :code:`islice(iterable, start=0, stop=Infinity, step=1)`
   Make an iterator that returns selected elements from the :code:`iterable`. If :code:`start` is
   non-zero, then elements from the iterable are skipped until :code:`start` is reached. Afterward,
   elements are returned consecutively unless :code:`step` is set higher than one which results in
@@ -141,9 +139,7 @@ Functions
     product(range(2), 3)   // 000 001 010 011 100 101 110 111
 
 
-:code:`range(stop)`
-
-:code:`range(start, stop, step=1)`
+:code:`range(stop)` or :code:`range(start, stop, step=1)`
   Make an iterator that returns a number starting from :code:`start` to :code:`stop`, incremented by
   :code:`step`.
 
