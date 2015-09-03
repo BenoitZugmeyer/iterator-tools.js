@@ -10,7 +10,27 @@ import {
   chainFromIterable,
   count,
   zip,
+  combinations,
 } from "../index";
+
+const fact = (n) => n <= 1 ? 1 : n * fact(n - 1);
+const cmp = (a, b) => {
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b)) throw new Error(`Can't compare ${a} with ${b}`);
+    for (const [va, vb] of zip(a, b)) { // TODO use zipLonguest
+      const r = cmp(va, vb);
+      if (r) return r;
+    }
+    return 0;
+  }
+  return (
+    a === b ? 0 :
+    a < b ? -1 :
+      1
+  );
+};
+
+const sorted = (iterable) => Array.from(iterable).sort(cmp);
 
 describe("itertools", () => {
 
@@ -181,4 +201,40 @@ describe("itertools", () => {
     expect(it.next().value).toBe(it.next().value);
   });
 
+  it("combinations", () => {
+    expect(() => combinations("abc")).toThrowError(Error, "r must be a number");
+    expect(() => combinations(null, 1)).toThrowError(Error, "null is not iterable");
+    expect(() => combinations("abc", -2)).toThrowError(Error, "r must be positive");
+
+    expect(combinations("abc", 32)).toYield();
+    expect(combinations("ABCD", 2)).toYield(["A","B"], ["A","C"], ["A","D"], ["B","C"],
+                                            ["B","D"], ["C","D"]);
+
+    const testIntermediate = combinations("ABCD", 2);
+    testIntermediate.next();
+    expect(testIntermediate).toYield(["A","C"], ["A","D"], ["B","C"], ["B","D"],
+                                     ["C","D"]);
+
+    expect(combinations(range(4), 3)).toYield([0, 1, 2], [0, 1, 3], [0, 2, 3],
+                                              [1, 2, 3]);
+
+    for (const n of range(4)) {
+      const values = Array.from(range(n)).map((x) => 5 * x - 12);
+      for (const r of range(n + 2)) {
+        const result = [];
+        for (const v of combinations(values, r)) result.push(v.slice());
+
+        expect(result.length).toBe(r > n ? 0 : fact(n) / fact(r) / fact(n - r));
+        expect(result.length).toBe(new Set(result).size);
+        expect(result).toEqual(sorted(result));
+        for (const c of result) {
+          expect(c.length).toBe(r);
+          expect(new Set(c).size).toBe(r);
+          expect(c).toEqual(sorted(c));
+          for (const e of c) expect(values).toContain(e);
+          expect(c).toEqual(values.filter((e) => c.includes(e)));
+        }
+      }
+    }
+  });
 });

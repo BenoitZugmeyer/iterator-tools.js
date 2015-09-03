@@ -32,7 +32,7 @@ Functions
 
     chainFromIterable(['ABC', 'DEF'])  // A B C D E F
 
-**TODO** :code:`combinations(iterable, r)`
+:code:`combinations(iterable, r)`
   Return :code:`r` length subsequences of elements from the input :code:`iterable`.
 
   .. code:: javascript

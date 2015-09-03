@@ -17,6 +17,11 @@ const assertNonZero = (value, subject) => {
   assert(value !== 0, `${subject} must be different than zero`);
 };
 
+const assertIterable = (value) => {
+  assert(value !== null && value !== undefined && typeof value[Symbol.iterator] === "function",
+         `${value} is not iterable`);
+};
+
 
 const DONE = Object.freeze({
   done: true,
@@ -26,9 +31,7 @@ const DONE = Object.freeze({
 const add = (a, b) => a + b;
 
 const iter = (value) => {
-  if (value === null || value === undefined || typeof value[Symbol.iterator] !== "function") {
-    throw new TypeError(`${value} is not iterable`);
-  }
+  assertIterable(value);
   const result = value[Symbol.iterator]();
   if (result === null || value === undefined || typeof result.next !== "function") {
     throw new TypeError(`${result} is not an iterator`);
@@ -139,6 +142,52 @@ class ChainIterator extends Iterator {
 
 }
 
+class CombinationsIterator extends Iterator {
+
+  constructor(iterable, r) {
+    super();
+    assertType(r, "number", "r");
+    assertPositive(r, "r");
+    assertInteger(r, "r");
+    assertIterable(iterable);
+    this._pool = Array.from(iterable);
+    this._value = [];
+    this._indices = Array.from(range(r));
+    this._first = true;
+  }
+
+  _next() {
+    const r = this._indices.length;
+    const n = this._pool.length;
+
+    if (r > n) return;
+
+    if (this._first) {
+      this._first = false;
+      for (let i = 0; i < r; i += 1) this._value[i] = this._pool[i];
+      this._yieldValue(this._value);
+      return;
+    }
+
+    let indice;
+    for (let i = r - 1; i >= 0; i -= 1) {
+      if (this._indices[i] !== i + n - r) {
+        indice = i;
+        break;
+      }
+    }
+    if (indice === undefined) return;
+
+    this._indices[indice] += 1;
+
+    for (let i = indice + 1; i < r; i += 1) this._indices[i] = this._indices[i - 1] + 1;
+
+    for (let i = 0; i < r; i += 1) this._value[i] = this._pool[this._indices[i]];
+    this._yieldValue(this._value);
+  }
+
+}
+
 class CountIterator extends Iterator {
 
   constructor(start=0, step=1) {
@@ -237,6 +286,7 @@ class ZipIterator extends Iterator {
 export const accumulate        = factory(AccumulateIterator);
 export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
+export const combinations      = factory(CombinationsIterator);
 export const count             = factory(CountIterator);
 export const islice            = factory(IsliceIterator);
 export const range             = factory(RangeIterator);
