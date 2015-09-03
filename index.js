@@ -23,8 +23,6 @@ const DONE = Object.freeze({
   value: undefined,
 });
 
-const VALUE = (value) => ({ done: false, value });
-
 const add = (a, b) => a + b;
 
 const iter = (value) => {
@@ -38,14 +36,33 @@ const iter = (value) => {
   return result;
 };
 
-const makeIterator = (next) => ({
-  next,
-  [Symbol.iterator]() {
-    return this;
-  },
-});
+const makeIterator = (next) => {
+  let item;
+  let done;
 
-const emptyIterator = makeIterator(() => DONE);
+  const yieldValue = (value) => {
+    if (!done) throw new Error("Called yieldValue twice");
+    done = false;
+    if (item) item.value = value;
+    else item = { value, done };
+  };
+
+  return {
+    next() {
+      if (!item || !item.done) {
+        done = true;
+        next(yieldValue);
+        if (done) item = DONE;
+      }
+      return item;
+    },
+    [Symbol.iterator]() {
+      return this;
+    },
+  };
+};
+
+const emptyIterator = makeIterator(() => {});
 
 const sliceArgs = (start, stop, step) => {
 
@@ -73,11 +90,10 @@ export const range = (start, stop, step) => {
 
   let i = start;
 
-  return makeIterator(() => {
-    if (step > 0 ? i >= stop : i <= stop) return DONE;
-    const result = i;
+  return makeIterator((yieldValue) => {
+    if (step > 0 ? i >= stop : i <= stop) return;
+    yieldValue(i);
     i += step;
-    return VALUE(result);
   });
 };
 
@@ -86,9 +102,9 @@ export const accumulate = (iterable, fn=add) => {
   let acc;
   let first = true;
 
-  return makeIterator(() => {
+  return makeIterator((yieldValue) => {
     const item = iterator.next();
-    if (item.done) return item;
+    if (item.done) return;
 
     if (first) {
       first = false;
@@ -98,7 +114,7 @@ export const accumulate = (iterable, fn=add) => {
       acc = fn(acc, item.value);
     }
 
-    return VALUE(acc);
+    yieldValue(acc);
   });
 };
 
@@ -108,17 +124,17 @@ export const chainFromIterable = (iterable) => {
   const iterator = iter(iterable);
   let currentIterator;
 
-  return makeIterator(() => {
+  return makeIterator((yieldValue) => {
     while (true) {
       if (currentIterator) {
         const item = currentIterator.next();
         // If the current iterator isn't exhausted, return the item
-        if (!item.done) return item;
+        if (!item.done) return yieldValue(item.value);
       }
 
       // Get next iterator
       const currentIterableItem = iterator.next();
-      if (currentIterableItem.done) return DONE;
+      if (currentIterableItem.done) return;
       currentIterator = iter(currentIterableItem.value);
     }
   });
@@ -139,18 +155,18 @@ export const islice = (iterable, start, stop, step) => {
   let i = 0;
   let nexti = start;
 
-  return makeIterator(() => {
+  return makeIterator((yieldValue) => {
     while (true) {
-      if (i >= stop) return DONE;
+      if (i >= stop) return;
 
       const item = iterator.next();
-      if (item.done) return DONE;
+      if (item.done) return;
 
       i += 1;
 
       if (i > nexti) {
         nexti += step;
-        return item;
+        return yieldValue(item.value);
       }
     }
   });
@@ -160,15 +176,15 @@ export const zip = (...iterables) => {
   if (!iterables.length) return emptyIterator;
   const iterators = iterables.map(iter);
   const value = [];
-  return makeIterator(() => {
+  return makeIterator((yieldValue) => {
     const l = iterators.length;
     let i = 0;
     for (; i < l; i++) {
       const item = iterators[i].next();
-      if (item.done) return DONE;
+      if (item.done) return;
       value[i] = item.value;
     }
-    return VALUE(value);
+    return yieldValue(value);
   });
 };
 
@@ -178,10 +194,9 @@ export const count = (start=0, step=1) => {
   assertNonZero(step, "step");
   let i = start;
 
-  return makeIterator(() => {
-    const result = VALUE(i);
+  return makeIterator((yieldValue) => {
+    yieldValue(i);
     i += step;
-    return result;
   });
 };
 

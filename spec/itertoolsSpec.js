@@ -13,6 +13,12 @@ import {
 } from "../index";
 
 describe("itertools", () => {
+
+  it("reuse the value object", () => {
+    const it = count();
+    expect(it.next()).toBe(it.next());
+  });
+
   it("range", () => {
     expect(range(10)).toYield(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     expect(range(1, 11)).toYield(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
