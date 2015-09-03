@@ -9,6 +9,7 @@ import {
   islice,
   chainFromIterable,
   count,
+  zip,
 } from "../index";
 
 describe("itertools", () => {
@@ -99,10 +100,9 @@ describe("itertools", () => {
     });
 
     it("is in a predictable state", () => {
-      pending("TODO: implement count");
       const c = count();
       expect(islice(c, 1, 3, 50)).toYield(1);
-      expect(c.next()).toBe(3);
+      expect(c.next().value).toBe(3);
     });
 
   });
@@ -136,4 +136,43 @@ describe("itertools", () => {
     expect(islice(chainFromIterable(["abc", "def"]), 4)).toYield("a", "b", "c", "d");
     expect(() => chainFromIterable([2, 3]).next()).toThrowError(Error, "2 is not iterable");
   });
+
+  it("count", () => {
+    expect(islice(count(), 5)).toYield(0, 1, 2, 3, 4);
+    expect(islice(count(3), 5)).toYield(3, 4, 5, 6, 7);
+    expect(islice(count(-3), 5)).toYield(-3, -2, -1, 0, 1);
+    expect(islice(count(0, 2), 5)).toYield(0, 2, 4, 6, 8);
+    expect(islice(count(.5, .3), 5)).toYield(.5,
+                                             .5 + .3,
+                                             .5 + .3 + .3,
+                                             .5 + .3 + .3 + .3,
+                                             .5 + .3 + .3 + .3 + .3);
+
+    expect(zip("abc", count())).toYield(["a", 0], ["b", 1], ["c", 2]);
+    expect(zip("abc", count(3))).toYield(["a", 3], ["b", 4], ["c", 5]);
+    expect(islice(zip("abc", count(3)), 2)).toYield(["a", 3], ["b", 4]);
+    expect(islice(zip("abc", count(-1)), 2)).toYield(["a", -1], ["b", 0]);
+    expect(islice(zip("abc", count(-3)), 2)).toYield(["a", -3], ["b", -2]);
+
+    expect(() => count("a")).toThrowError(Error, "start must be a number");
+    expect(() => count(0, 0)).toThrowError(Error, "step must be different than zero");
+  });
+
+  it("zip", () => {
+    expect(zip("abc", count())).toYield(["a", 0], ["b", 1], ["c", 2]);
+    expect(zip("abc", range(6))).toYield(["a", 0], ["b", 1], ["c", 2]);
+    expect(zip("abcdef", range(3))).toYield(["a", 0], ["b", 1], ["c", 2]);
+    expect(islice(zip("abcdef", count()), 3)).toYield(["a", 0], ["b", 1], ["c", 2]);
+    expect(zip("abc")).toYield(["a"], ["b"], ["c"]);
+    expect(zip()).toYield();
+    expect(zip("abc", "def", "ghi")).toYield(["a", "d", "g"], ["b", "e", "h"], ["c", "f", "i"]);
+
+    expect(() => zip(3).next()).toThrowError(Error, "3 is not iterable");
+    expect(() => zip(range(3), 3).next()).toThrowError(Error, "3 is not iterable");
+
+    // Array reusability
+    const it = zip("abc");
+    expect(it.next().value).toBe(it.next().value);
+  });
+
 });

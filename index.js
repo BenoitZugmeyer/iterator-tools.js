@@ -13,8 +13,8 @@ const assertPositive = (value, subject) => {
   assert(value >= 0, `${subject} must be positive`);
 };
 
-const assertStrictlyPositive = (value, subject) => {
-  assert(value > 0, `${subject} must be strictly positive`);
+const assertNonZero = (value, subject) => {
+  assert(value !== 0, `${subject} must be different than zero`);
 };
 
 
@@ -61,7 +61,7 @@ const sliceArgs = (start, stop, step) => {
   assertType(start, "number", "start");
   assertType(stop, "number", "stop");
   assertType(step, "number", "step");
-  assert(step !== 0, "step must be different than zero");
+  assertNonZero(step, "step");
 
   return [start, stop, step];
 };
@@ -156,6 +156,34 @@ export const islice = (iterable, start, stop, step) => {
   });
 };
 
+export const zip = (...iterables) => {
+  if (!iterables.length) return emptyIterator;
+  const iterators = iterables.map(iter);
+  const value = [];
+  return makeIterator(() => {
+    const l = iterators.length;
+    let i = 0;
+    for (; i < l; i++) {
+      const item = iterators[i].next();
+      if (item.done) return DONE;
+      value[i] = item.value;
+    }
+    return VALUE(value);
+  });
+};
+
+export const count = (start=0, step=1) => {
+  assertType(start, "number", "start");
+  assertType(step, "number", "step");
+  assertNonZero(step, "step");
+  let i = start;
+
+  return makeIterator(() => {
+    const result = VALUE(i);
+    i += step;
+    return result;
+  });
+};
 
 // DRAFT
 
