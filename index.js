@@ -87,24 +87,6 @@ class Iterator {
 
 }
 
-class RangeIterator extends Iterator {
-
-  constructor(start, stop, step) {
-    super();
-    assertType(start, "number", "start");
-    this._sliceArgs(start, stop, step);
-    this._i = this._start;
-  }
-
-  _next() {
-    if (this._step > 0 ? this._i < this._stop : this._i > this._stop) {
-      this._yieldValue(this._i);
-      this._i += this._step;
-    }
-  }
-
-}
-
 class AccumulateIterator extends Iterator {
 
   constructor(iterable, fn=add) {
@@ -127,42 +109,6 @@ class AccumulateIterator extends Iterator {
       }
 
       this._yieldValue(this._acc);
-    }
-  }
-
-}
-
-class IsliceIterator extends Iterator {
-
-  constructor(iterable, start, stop, step) {
-    super();
-
-    this._sliceArgs(start, stop, step);
-    assertPositive(this._start, "start");
-    assertPositive(this._stop, "stop");
-    assertPositive(this._step, "step");
-    assertInteger(this._start, "start");
-    assertInteger(this._stop, "stop");
-    assertInteger(this._step, "step");
-
-    this._iterator = iter(iterable);
-    this._i = 0;
-    this._nexti = this._start;
-  }
-
-  _next() {
-    while (true) {
-      if (this._i >= this._stop) return;
-
-      const item = this._iterator.next();
-      if (item.done) return;
-
-      this._i += 1;
-
-      if (this._i > this._nexti) {
-        this._nexti += this._step;
-        return this._yieldValue(item.value);
-      }
     }
   }
 
@@ -211,6 +157,60 @@ class CountIterator extends Iterator {
 
 }
 
+class IsliceIterator extends Iterator {
+
+  constructor(iterable, start, stop, step) {
+    super();
+
+    this._sliceArgs(start, stop, step);
+    assertPositive(this._start, "start");
+    assertPositive(this._stop, "stop");
+    assertPositive(this._step, "step");
+    assertInteger(this._start, "start");
+    assertInteger(this._stop, "stop");
+    assertInteger(this._step, "step");
+
+    this._iterator = iter(iterable);
+    this._i = 0;
+    this._nexti = this._start;
+  }
+
+  _next() {
+    while (true) {
+      if (this._i >= this._stop) return;
+
+      const item = this._iterator.next();
+      if (item.done) return;
+
+      this._i += 1;
+
+      if (this._i > this._nexti) {
+        this._nexti += this._step;
+        return this._yieldValue(item.value);
+      }
+    }
+  }
+
+}
+
+class RangeIterator extends Iterator {
+
+  constructor(start, stop, step) {
+    super();
+    assertType(start, "number", "start");
+    this._sliceArgs(start, stop, step);
+    this._i = this._start;
+  }
+
+  _next() {
+    if (this._step > 0 ? this._i < this._stop : this._i > this._stop) {
+      this._yieldValue(this._i);
+      this._i += this._step;
+    }
+  }
+
+}
+
 class ZipIterator extends Iterator {
 
   constructor(iterables) {
@@ -234,13 +234,13 @@ class ZipIterator extends Iterator {
 
 }
 
-export const range = factory(RangeIterator);
-export const accumulate = factory(AccumulateIterator);
-export const islice = factory(IsliceIterator);
-export const chain = (...iterables) => new ChainIterator(iterables);
+export const accumulate        = factory(AccumulateIterator);
+export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
-export const count = factory(CountIterator);
-export const zip = (...iterables) => new ZipIterator(iterables);
+export const count             = factory(CountIterator);
+export const islice            = factory(IsliceIterator);
+export const range             = factory(RangeIterator);
+export const zip               = (...iterables) => new ZipIterator(iterables);
 
 
 // DRAFT
