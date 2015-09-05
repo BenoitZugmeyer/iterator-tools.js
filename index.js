@@ -204,24 +204,6 @@ class CombinationsIterator extends Iterator {
 
 }
 
-class CountIterator extends Iterator {
-
-  constructor(start=0, step=1) {
-    super();
-    assertType(start, "number", "start");
-    assertType(step, "number", "step");
-    assertNonZero(step, "step");
-    this._i = start;
-    this._step = step;
-  }
-
-  _next() {
-    this._yieldValue(this._i);
-    this._i += this._step;
-  }
-
-}
-
 const GROUPBY_NO_KEY = {};
 
 class GroupByIterator extends Iterator {
@@ -355,7 +337,7 @@ export const chainFromIterable = factory(ChainIterator);
 export const combinations      = (iterable, r) => new CombinationsIterator(iterable, r);
 export const combinationsWithReplacement
                                = (iterable, r) => new CombinationsIterator(iterable, r, true);
-export const count             = factory(CountIterator);
+export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
 export const groupBy           = factory(GroupByIterator);
 export const slice             = factory(SliceIterator);
 export const range             = factory(RangeIterator);
