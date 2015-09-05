@@ -341,6 +341,24 @@ class RangeIterator extends Iterator {
 
 }
 
+class RepeatIterator extends Iterator {
+
+  constructor(object, times=Infinity) {
+    super();
+    assertType(times, "number", "times");
+    this._object = object;
+    this._times = times;
+  }
+
+  _next() {
+    if (this._times > 0) {
+      this._yieldValue(this._object);
+      this._times -= 1;
+    }
+  }
+
+}
+
 class ZipIterator extends Iterator {
 
   constructor(iterables) {
@@ -374,6 +392,7 @@ export const cycle             = factory(CycleIterator);
 export const groupBy           = factory(GroupByIterator);
 export const slice             = factory(SliceIterator);
 export const range             = factory(RangeIterator);
+export const repeat            = factory(RepeatIterator);
 export const zip               = (...iterables) => new ZipIterator(iterables);
 
 

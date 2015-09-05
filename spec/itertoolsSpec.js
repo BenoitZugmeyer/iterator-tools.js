@@ -12,6 +12,7 @@ import {
   cycle,
   groupBy,
   range,
+  repeat,
   slice,
   zip,
 } from "../index";
@@ -373,4 +374,16 @@ describe("itertools", () => {
       expect(lengths).toEqual[[[5, "a"], [2, "b"], [1, "c"], [1, "d"], [2, "r"]]];
     });
   });
+
+  it("repeat", () => {
+    expect(repeat("a", 3)).toYield("a", "a", "a");
+    expect(zip(range(3), repeat("a"))).toYield([0, "a"], [1, "a"], [2, "a"]);
+    expect(slice(repeat("a"), 3)).toYield("a", "a", "a");
+    expect(repeat("a", 0)).toYield();
+    expect(repeat("a", -3)).toYield();
+
+    expect(slice(repeat(), 3)).toYield(undefined, undefined, undefined);
+    expect(() => repeat(null, "a")).toThrowError(Error, "times must be a number");
+  });
+
 });
