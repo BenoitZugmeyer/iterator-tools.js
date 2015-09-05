@@ -353,7 +353,7 @@ class ZipIterator extends Iterator {
 export const accumulate        = factory(AccumulateIterator);
 export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
-export const combinations      = factory(CombinationsIterator);
+export const combinations      = (iterable, r) => new CombinationsIterator(iterable, r);
 export const combinationsWithReplacement
                                = (iterable, r) => new CombinationsIterator(iterable, r, true);
 export const count             = factory(CountIterator);
