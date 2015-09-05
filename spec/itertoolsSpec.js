@@ -6,7 +6,7 @@ import {
   accumulate,
   range,
   chain,
-  islice,
+  slice,
   chainFromIterable,
   count,
   zip,
@@ -87,55 +87,55 @@ describe("itertools", () => {
     expect(() => range(0, 42, "spam")).toThrowError(Error, "step must be a number");
   });
 
-  describe("islice", () => {
+  describe("slice", () => {
     it("should agree with range", () => {
-      expect(islice(range(100), 10, 20, 3)).toYieldFromIterator(range(10, 20, 3));
-      expect(islice(range(100), 10, 3, 20)).toYieldFromIterator(range(10, 3, 20));
-      expect(islice(range(100), 10, 20)).toYieldFromIterator(range(10, 20));
-      expect(islice(range(100), 10, 3)).toYieldFromIterator(range(10, 3));
-      expect(islice(range(100), 20)).toYieldFromIterator(range(20));
+      expect(slice(range(100), 10, 20, 3)).toYieldFromIterator(range(10, 20, 3));
+      expect(slice(range(100), 10, 3, 20)).toYieldFromIterator(range(10, 3, 20));
+      expect(slice(range(100), 10, 20)).toYieldFromIterator(range(10, 20));
+      expect(slice(range(100), 10, 3)).toYieldFromIterator(range(10, 3));
+      expect(slice(range(100), 20)).toYieldFromIterator(range(20));
     });
 
     it("stops when seqn is exhausted", () => {
-      expect(islice(range(100), 10, 110, 3)).toYieldFromIterator(range(10, 100, 3));
-      expect(islice(range(100), 10, 110)).toYieldFromIterator(range(10, 100));
-      expect(islice(range(100), 110)).toYieldFromIterator(range(100));
+      expect(slice(range(100), 10, 110, 3)).toYieldFromIterator(range(10, 100, 3));
+      expect(slice(range(100), 10, 110)).toYieldFromIterator(range(10, 100));
+      expect(slice(range(100), 110)).toYieldFromIterator(range(100));
     });
 
     it("works when stop=null", () => {
-      expect(islice(range(10))).toYieldFromIterator(range(10));
-      expect(islice(range(10), 2, Infinity)).toYieldFromIterator(range(2, 10));
-      expect(islice(range(10), 1, Infinity, 2)).toYieldFromIterator(range(1, 10, 2));
+      expect(slice(range(10))).toYieldFromIterator(range(10));
+      expect(slice(range(10), 2, Infinity)).toYieldFromIterator(range(2, 10));
+      expect(slice(range(10), 1, Infinity, 2)).toYieldFromIterator(range(1, 10, 2));
     });
 
     it("consumes the right number of items", () => {
       const iterator = range(10);
-      expect(islice(iterator, 3)).toYieldFromIterator(range(3));
+      expect(slice(iterator, 3)).toYieldFromIterator(range(3));
       expect(iterator).toYieldFromIterator(range(3, 10));
     });
 
     it("throws errors when passing invalid arguments", () => {
       const ra = range(10);
-      expect(() => islice(ra, -5, 10, 1)).toThrowError(Error, "start must be positive");
-      expect(() => islice(ra, 1, -5, -1)).toThrowError(Error, "stop must be positive");
-      expect(() => islice(ra, 1, 10, -1)).toThrowError(Error, "step must be positive");
-      expect(() => islice(ra, 1, 10, 0)).toThrowError(Error, "step must be different than zero");
-      expect(() => islice(ra, "a")).toThrowError(Error, "stop must be a number");
-      expect(() => islice(ra, "a", 1)).toThrowError(Error, "start must be a number");
-      expect(() => islice(ra, 1, "a")).toThrowError(Error, "stop must be a number");
-      expect(() => islice(ra, "a", 1, 1)).toThrowError(Error, "start must be a number");
-      expect(() => islice(ra, 1, "a", 1)).toThrowError(Error, "stop must be a number");
+      expect(() => slice(ra, -5, 10, 1)).toThrowError(Error, "start must be positive");
+      expect(() => slice(ra, 1, -5, -1)).toThrowError(Error, "stop must be positive");
+      expect(() => slice(ra, 1, 10, -1)).toThrowError(Error, "step must be positive");
+      expect(() => slice(ra, 1, 10, 0)).toThrowError(Error, "step must be different than zero");
+      expect(() => slice(ra, "a")).toThrowError(Error, "stop must be a number");
+      expect(() => slice(ra, "a", 1)).toThrowError(Error, "start must be a number");
+      expect(() => slice(ra, 1, "a")).toThrowError(Error, "stop must be a number");
+      expect(() => slice(ra, "a", 1, 1)).toThrowError(Error, "start must be a number");
+      expect(() => slice(ra, 1, "a", 1)).toThrowError(Error, "stop must be a number");
 
-      expect(() => islice(ra, 0.5)).toThrowError(Error, "stop must be an integer");
-      expect(() => islice(ra, 0.5, 1)).toThrowError(Error, "start must be an integer");
-      expect(() => islice(ra, 1, 0.5)).toThrowError(Error, "stop must be an integer");
-      expect(() => islice(ra, 0.5, 1, 1)).toThrowError(Error, "start must be an integer");
-      expect(() => islice(ra, 1, 0.5, 1)).toThrowError(Error, "stop must be an integer");
+      expect(() => slice(ra, 0.5)).toThrowError(Error, "stop must be an integer");
+      expect(() => slice(ra, 0.5, 1)).toThrowError(Error, "start must be an integer");
+      expect(() => slice(ra, 1, 0.5)).toThrowError(Error, "stop must be an integer");
+      expect(() => slice(ra, 0.5, 1, 1)).toThrowError(Error, "start must be an integer");
+      expect(() => slice(ra, 1, 0.5, 1)).toThrowError(Error, "stop must be an integer");
     });
 
     it("is in a predictable state", () => {
       const c = count();
-      expect(islice(c, 1, 3, 50)).toYield(1);
+      expect(slice(c, 1, 3, 50)).toYield(1);
       expect(c.next().value).toBe(3);
     });
 
@@ -158,7 +158,7 @@ describe("itertools", () => {
     expect(chain("abc")).toYield("a", "b", "c");
     expect(chain("")).toYield();
     expect(chain("a", "b", "c")).toYield("a", "b", "c");
-    expect(islice(chain("abc", "def"), 4)).toYield("a", "b", "c", "d");
+    expect(slice(chain("abc", "def"), 4)).toYield("a", "b", "c", "d");
     expect(() => chain(2, 3).next()).toThrowError(Error, "2 is not iterable");
   });
 
@@ -167,16 +167,16 @@ describe("itertools", () => {
     expect(chainFromIterable(["abc"])).toYield("a", "b", "c");
     expect(chainFromIterable([""])).toYield();
     expect(chainFromIterable(["", "ab", "", "c"])).toYield("a", "b", "c");
-    expect(islice(chainFromIterable(["abc", "def"]), 4)).toYield("a", "b", "c", "d");
+    expect(slice(chainFromIterable(["abc", "def"]), 4)).toYield("a", "b", "c", "d");
     expect(() => chainFromIterable([2, 3]).next()).toThrowError(Error, "2 is not iterable");
   });
 
   it("count", () => {
-    expect(islice(count(), 5)).toYield(0, 1, 2, 3, 4);
-    expect(islice(count(3), 5)).toYield(3, 4, 5, 6, 7);
-    expect(islice(count(-3), 5)).toYield(-3, -2, -1, 0, 1);
-    expect(islice(count(0, 2), 5)).toYield(0, 2, 4, 6, 8);
-    expect(islice(count(.5, .3), 5)).toYield(.5,
+    expect(slice(count(), 5)).toYield(0, 1, 2, 3, 4);
+    expect(slice(count(3), 5)).toYield(3, 4, 5, 6, 7);
+    expect(slice(count(-3), 5)).toYield(-3, -2, -1, 0, 1);
+    expect(slice(count(0, 2), 5)).toYield(0, 2, 4, 6, 8);
+    expect(slice(count(.5, .3), 5)).toYield(.5,
                                              .5 + .3,
                                              .5 + .3 + .3,
                                              .5 + .3 + .3 + .3,
@@ -184,9 +184,9 @@ describe("itertools", () => {
 
     expect(zip("abc", count())).toYield(["a", 0], ["b", 1], ["c", 2]);
     expect(zip("abc", count(3))).toYield(["a", 3], ["b", 4], ["c", 5]);
-    expect(islice(zip("abc", count(3)), 2)).toYield(["a", 3], ["b", 4]);
-    expect(islice(zip("abc", count(-1)), 2)).toYield(["a", -1], ["b", 0]);
-    expect(islice(zip("abc", count(-3)), 2)).toYield(["a", -3], ["b", -2]);
+    expect(slice(zip("abc", count(3)), 2)).toYield(["a", 3], ["b", 4]);
+    expect(slice(zip("abc", count(-1)), 2)).toYield(["a", -1], ["b", 0]);
+    expect(slice(zip("abc", count(-3)), 2)).toYield(["a", -3], ["b", -2]);
 
     expect(() => count("a")).toThrowError(Error, "start must be a number");
     expect(() => count(0, 0)).toThrowError(Error, "step must be different than zero");
@@ -196,7 +196,7 @@ describe("itertools", () => {
     expect(zip("abc", count())).toYield(["a", 0], ["b", 1], ["c", 2]);
     expect(zip("abc", range(6))).toYield(["a", 0], ["b", 1], ["c", 2]);
     expect(zip("abcdef", range(3))).toYield(["a", 0], ["b", 1], ["c", 2]);
-    expect(islice(zip("abcdef", count()), 3)).toYield(["a", 0], ["b", 1], ["c", 2]);
+    expect(slice(zip("abcdef", count()), 3)).toYield(["a", 0], ["b", 1], ["c", 2]);
     expect(zip("abc")).toYield(["a"], ["b"], ["c"]);
     expect(zip()).toYield();
     expect(zip("abc", "def", "ghi")).toYield(["a", "d", "g"], ["b", "e", "h"], ["c", "f", "i"]);

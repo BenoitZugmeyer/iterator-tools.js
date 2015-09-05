@@ -210,7 +210,7 @@ class CountIterator extends Iterator {
 
 }
 
-class IsliceIterator extends Iterator {
+class SliceIterator extends Iterator {
 
   constructor(iterable, start, stop, step) {
     super();
@@ -292,7 +292,7 @@ export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
 export const combinations      = factory(CombinationsIterator);
 export const count             = factory(CountIterator);
-export const islice            = factory(IsliceIterator);
+export const slice             = factory(SliceIterator);
 export const range             = factory(RangeIterator);
 export const zip               = (...iterables) => new ZipIterator(iterables);
 
