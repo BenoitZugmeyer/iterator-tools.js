@@ -129,7 +129,7 @@ Functions
     permutations(range(3))   // 012 021 102 120 201 210
 
 
-:code:`product(...iterables, repeat=1)`
+**TODO** :code:`product(...iterables, repeat=1)`
   Cartesian product of input :code:`iterables`. To compute the product of an iterable with itself,
   specify the number of repetitions with the optional :code:`repeat` argument.
 
@@ -152,7 +152,7 @@ Functions
     range(0, -10, -1)  // 0 -1 -2 -3 -4 -5 -6 -7 -8 -9
 
 
-**TODO** :code:`repeat(element, times=Infinity)`
+:code:`repeat(element, times=Infinity)`
   Make an iterator that returns :code:`element` over and over again. Runs indefinitely unless the
   :code:`times` argument is specified.
 
