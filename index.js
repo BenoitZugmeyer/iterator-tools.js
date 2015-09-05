@@ -338,8 +338,7 @@ class ZipIterator extends Iterator {
   _next() {
     const l = this._iterators.length;
     if (l) {
-      let i = 0;
-      for (; i < l; i++) {
+      for (let i = 0; i < l; i++) {
         const item = this._iterators[i].next();
         if (item.done) return;
         this._value[i] = item.value;
