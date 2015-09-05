@@ -12,7 +12,7 @@ import {
   zip,
   combinations,
   combinationsWithReplacement,
-  groupby,
+  groupBy,
 } from "../index";
 
 const fact = (n) => n <= 1 ? 1 : n * fact(n - 1);
@@ -246,7 +246,7 @@ describe("itertools", () => {
   });
 
   it("combinationsWithReplacement", () => {
-    pending("TODO: implement combinationsWithReplacement and groupby");
+    pending("TODO: implement combinationsWithReplacement");
     const cwr = combinationsWithReplacement;
 
     expect(() => cwr("abc")).toThrowError(Error, "r must be a number");
@@ -284,7 +284,7 @@ describe("itertools", () => {
         for (const c in result) {
           expect(c.length).toBe(r);
           const noruns = [];
-          for (const [k] of groupby(c)) noruns.push(k);
+          for (const [k] of groupBy(c)) noruns.push(k);
           expect(noruns.length).toBe(new Set(noruns).size);
           expect(c).toEqual(sorted(c));
           for (const e of c) expect(values).toContain(e);
@@ -294,8 +294,7 @@ describe("itertools", () => {
     }
   });
 
-  describe("groupby", () => {
-    pending("TODO: implement groupby");
+  describe("groupBy", () => {
     const getKeys = (iterable) => {
       const keys = [];
       for (const [k] of iterable) keys.push(k);
@@ -306,16 +305,16 @@ describe("itertools", () => {
       [2,15,22], [3,16,23], [3,17,23]];
 
     it("accepts arguments correctly", () => {
-      expect(groupby([])).toYield();
-      expect(groupby([], () => {})).toYield();
-      expect(() => groupby("abc", []).next()).toThrowError(Error, "TODO");
-      expect(() => groupby(null)).toThrowError(Error, "TODO");
+      expect(groupBy([])).toYield();
+      expect(groupBy([], () => {})).toYield();
+      expect(() => groupBy("abc", []).next()).toThrowError(Error, "keyFn must be a function");
+      expect(() => groupBy(null)).toThrowError(Error, "null is not iterable");
     });
 
     it("works with normal input", () => {
       const dup = [];
 
-      for (const [k, g] of groupby(s, (r) => r[0])) {
+      for (const [k, g] of groupBy(s, (r) => r[0])) {
         for (const elem of g) {
           expect(k).toEqual(elem[0]);
           dup.push(elem);
@@ -328,8 +327,8 @@ describe("itertools", () => {
     it("works with nested inputs", () => {
       const dup = [];
 
-      for (const [k, g] of groupby(s, (r) => r[0])) {
-        for (const [ik, ig] of groupby(g, (r) => r[2])) {
+      for (const [k, g] of groupBy(s, (r) => r[0])) {
+        for (const [ik, ig] of groupBy(g, (r) => r[2])) {
           for (const elem of ig) {
             expect(k).toEqual(elem[0]);
             expect(ik).toEqual(elem[2]);
@@ -342,7 +341,7 @@ describe("itertools", () => {
     });
 
     it("works when inner iterator is not used", () => {
-      const keys = getKeys(groupby(s, (r) => r[0]));
+      const keys = getKeys(groupBy(s, (r) => r[0]));
       const expectedKeys = new Set();
       for (const r of s) expectedKeys.add(r[0]);
 
@@ -352,18 +351,18 @@ describe("itertools", () => {
 
     it("works with different use cases", () => {
       const t = "abracadabra";
-      expect(getKeys(groupby(sorted(t)))).toEqual(["a", "b", "c", "d", "r"]);
+      expect(getKeys(groupBy(sorted(t)))).toEqual(["a", "b", "c", "d", "r"]);
       const keys = [];
-      for (const [k, g] of groupby(sorted(t))) {
+      for (const [k, g] of groupBy(sorted(t))) {
         if (g.next() && !g.next().done) keys.push(k);
       }
       expect(keys).toEqual(["a", "b", "r"]);
 
       const lengths = [];
-      for (const [k, g] of groupby(sorted(s))) {
+      for (const [k, g] of groupBy(sorted(s))) {
         lengths.push([Array.from(g).length, k]);
       }
-      expect[lengths].toEqual[[[5, "a"], [2, "b"], [1, "c"], [1, "d"], [2, "r"]]];
+      expect(lengths).toEqual[[[5, "a"], [2, "b"], [1, "c"], [1, "d"], [2, "r"]]];
     });
   });
 });

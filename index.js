@@ -34,6 +34,7 @@ const DONE = Object.freeze({
 });
 
 const add = (a, b) => a + b;
+const identity = (i) => i;
 
 const iter = (value) => {
   assertIterable(value);
@@ -48,6 +49,10 @@ const factory = (Cls) => (a, b, c, d, e, f) => new Cls(a, b, c, d, e, f);
 class Iterator {
 
   constructor() {
+    this._reset();
+  }
+
+  _reset() {
     this._item = undefined;
     this._done = false;
   }
@@ -210,6 +215,57 @@ class CountIterator extends Iterator {
 
 }
 
+const GROUPBY_NO_KEY = {};
+
+class GroupByIterator extends Iterator {
+
+  constructor(iterable, keyFn=identity) {
+    super();
+    assertType(keyFn, "function", "keyFn");
+    this._iterator = iter(iterable);
+    this._keyFn = keyFn;
+    this._currentItem = undefined;
+    this._targetKey = this._currentKey = GROUPBY_NO_KEY;
+    this._inner = new GroupByInnerIterator(this);
+    this._value = [null, this._inner];
+  }
+
+  _next() {
+    if (this._currentIterator && this._currentItem.done) return;
+
+    while (this._currentKey === this._targetKey) {
+      this._currentItem = this._iterator.next();
+      if (this._currentItem.done) return;
+      this._currentKey = this._keyFn(this._currentItem.value);
+    }
+
+    this._targetKey = this._currentKey;
+
+    this._value[0] = this._currentKey;
+    this._inner._reset();
+
+    this._yieldValue(this._value);
+  }
+
+}
+
+class GroupByInnerIterator extends Iterator {
+
+  constructor(outer) {
+    super();
+    this._outer = outer;
+  }
+
+  _next() {
+    const outer = this._outer;
+    if (outer._currentItem.done || outer._currentKey !== outer._targetKey) return;
+    this._yieldValue(outer._currentItem.value);
+    outer._currentItem = outer._iterator.next();
+    if (!outer._currentItem.done) outer._currentKey = outer._keyFn(outer._currentItem.value);
+  }
+
+}
+
 class SliceIterator extends Iterator {
 
   constructor(iterable, start, stop, step) {
@@ -292,14 +348,13 @@ export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
 export const combinations      = factory(CombinationsIterator);
 export const count             = factory(CountIterator);
+export const groupBy           = factory(GroupByIterator);
 export const slice             = factory(SliceIterator);
 export const range             = factory(RangeIterator);
 export const zip               = (...iterables) => new ZipIterator(iterables);
 
 
 // DRAFT
-
-// const identity = (x) => x;
 
 // export const some = (iterable, fn) => {
 //   for (const value of iterable) if (fn(value)) return true;
@@ -310,42 +365,6 @@ export const zip               = (...iterables) => new ZipIterator(iterables);
 //   for (const value of iterable) if (!fn(value)) return false;
 //   return true;
 // };
-
-// export const groupBy = (keyfn=identity) => {
-//   const iterator = iter(this);
-//   let currentItem;
-//   let targetKey, currentKey;
-//   targetKey = currentKey = {};
-
-//   return makeIterator(() => {
-
-//     if (currentItem && currentItem.done) return DONE;
-
-//     while (currentKey === targetKey) {
-//       currentItem = iterator.next();
-//       if (currentItem.done) return DONE;
-//       currentKey = keyfn(currentItem.value);
-//     }
-
-//     targetKey = currentKey;
-
-//     return VALUE([
-
-//       currentKey,
-
-//       makeIterator(() => {
-//         if (currentItem.done || currentKey !== targetKey) return DONE;
-//         const result = currentItem;
-//         currentItem = iterator.next();
-//         if (!currentItem.done) {
-//           currentKey = keyfn(currentItem.value);
-//         }
-//         return result;
-//       }),
-
-//     ]);
-//   });
-// }
 
 // export const map = (iterable, fn=identity) => {
 //   const iterator = iter(iterable);

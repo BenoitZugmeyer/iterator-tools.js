@@ -89,7 +89,7 @@ Functions
     filterfalse(range(10), (x) => x % 2)  // 0 2 4 6 8
 
 
-**TODO** :code:`groupby(iterable, key=(i) => i)`
+:code:`groupBy(iterable, key=(i) => i)`
   Make an iterator that returns consecutive keys and groups from the :code:`iterable`. The
   :code:`key` is a function computing a key value for each element. If not specified, :code:`key`
   defaults to an identity function and returns the element unchanged. Generally, the iterable needs
@@ -97,7 +97,7 @@ Functions
 
   .. code:: javascript
 
-    groupby('AAAABBBCCDAABBB')  // A, A A A A
+    groupBy('AAAABBBCCDAABBB')  // A, A A A A
                                 // B, B B B
                                 // C, C C
                                 // D, D
