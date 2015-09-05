@@ -48,7 +48,7 @@ Functions
 
     combinationsWithReplacement('ABC', 2)  // AA AB AC BB BC CC
 
-**TODO** :code:`compress(data, selectors)`
+:code:`compress(data, selectors)`
   Make an iterator that filters elements from :code:`data` returning only those that have a
   corresponding element in :code:`selectors` that evaluates to :code:`true`. Stops when either the
   data or selectors iterables has been exhausted.

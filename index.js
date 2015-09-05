@@ -204,6 +204,27 @@ class CombinationsIterator extends Iterator {
 
 }
 
+class CompressIterator extends Iterator {
+
+  constructor(source, selectors) {
+    super();
+    this._source = iter(source);
+    this._selectors = iter(selectors);
+  }
+
+  _next() {
+    while (true) {
+      const sourceItem = this._source.next();
+      const selectorItem = this._selectors.next();
+
+      if (sourceItem.done || selectorItem.done) return;
+
+      if (selectorItem.value) return this._yieldValue(sourceItem.value);
+    }
+  }
+
+}
+
 class CycleIterator extends Iterator {
 
   constructor(iterable) {
@@ -387,6 +408,7 @@ export const chainFromIterable = factory(ChainIterator);
 export const combinations      = (iterable, r) => new CombinationsIterator(iterable, r);
 export const combinationsWithReplacement
                                = (iterable, r) => new CombinationsIterator(iterable, r, true);
+export const compress          = factory(CompressIterator);
 export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
 export const cycle             = factory(CycleIterator);
 export const groupBy           = factory(GroupByIterator);

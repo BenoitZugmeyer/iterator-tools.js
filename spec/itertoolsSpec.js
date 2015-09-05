@@ -8,6 +8,7 @@ import {
   chainFromIterable,
   combinations,
   combinationsWithReplacement,
+  compress,
   count,
   cycle,
   groupBy,
@@ -293,6 +294,29 @@ describe("itertools", () => {
         }
       }
     }
+  });
+
+  it("compress", () => {
+    expect(compress("ABCDEF", [1, 0, 1, 0, 1, 1])).toYield("A", "C", "E", "F");
+    expect(compress("ABCDEF", [0, 0, 0, 0, 0, 0])).toYield();
+    expect(compress("ABCDEF", [1, 1, 1, 1, 1, 1])).toYield("A", "B", "C", "D", "E", "F");
+    expect(compress("ABCDEF", [1, 0, 1])).toYield("A", "C");
+    expect(compress("ABC", [0, 1, 1, 1, 1, 1])).toYield("B", "C");
+
+    const n = 2;
+    const data = chainFromIterable(repeat([0, 1, 2, 3, 4, 5], n));
+    const selectors = chainFromIterable(repeat([0, 1]));
+    const it = compress(data, selectors);
+    for (let i = 0; i < n; i += 1) {
+      expect(it.next().value).toBe(1);
+      expect(it.next().value).toBe(3);
+      expect(it.next().value).toBe(5);
+    }
+    expect(it.next().done).toBe(true);
+
+    expect(() => compress(null, range(6))).toThrowError(Error, "null is not iterable");
+    expect(() => compress(range(6), null)).toThrowError(Error, "null is not iterable");
+    expect(() => compress(range(6))).toThrowError(Error, "undefined is not iterable");
   });
 
   it("cycle", () => {
