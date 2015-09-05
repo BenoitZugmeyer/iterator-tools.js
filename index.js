@@ -204,6 +204,38 @@ class CombinationsIterator extends Iterator {
 
 }
 
+class CycleIterator extends Iterator {
+
+  constructor(iterable) {
+    super();
+    this._iterator = iter(iterable);
+    this._saved = [];
+    this._i = 0;
+    this._exhausted = false;
+  }
+
+  _next() {
+
+    if (!this._exhausted) {
+      const item = this._iterator.next();
+      if (item.done) {
+        if (this._saved.length) this._exhausted = true;
+        else return;
+      }
+      else {
+        this._saved.push(item.value);
+        this._yieldValue(item.value);
+        return;
+      }
+    }
+
+    this._yieldValue(this._saved[this._i]);
+    this._i = (this._i + 1) % this._saved.length;
+
+  }
+
+}
+
 const GROUPBY_NO_KEY = {};
 
 class GroupByIterator extends Iterator {
@@ -338,6 +370,7 @@ export const combinations      = (iterable, r) => new CombinationsIterator(itera
 export const combinationsWithReplacement
                                = (iterable, r) => new CombinationsIterator(iterable, r, true);
 export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
+export const cycle             = factory(CycleIterator);
 export const groupBy           = factory(GroupByIterator);
 export const slice             = factory(SliceIterator);
 export const range             = factory(RangeIterator);

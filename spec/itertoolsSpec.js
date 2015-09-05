@@ -4,15 +4,16 @@
 
 import {
   accumulate,
-  range,
   chain,
-  slice,
   chainFromIterable,
-  count,
-  zip,
   combinations,
   combinationsWithReplacement,
+  count,
+  cycle,
   groupBy,
+  range,
+  slice,
+  zip,
 } from "../index";
 
 const fact = (n) => n <= 1 ? 1 : n * fact(n - 1);
@@ -291,6 +292,14 @@ describe("itertools", () => {
         }
       }
     }
+  });
+
+  it("cycle", () => {
+    expect(slice(cycle("abc"), 10)).toYield("a", "b", "c", "a", "b", "c", "a", "b", "c", "a");
+    expect(cycle("")).toYield();
+    expect(() => cycle()).toThrowError(Error, "undefined is not iterable");
+    expect(() => cycle(5)).toThrowError(Error, "5 is not iterable");
+    expect(slice(cycle(range(3)), 10)).toYield(0, 1, 2, 0, 1, 2, 0, 1, 2, 0)
   });
 
   describe("groupBy", () => {

@@ -65,7 +65,7 @@ Functions
     count(10)        // 10 11 12 13 14 ...
     count(2.5, 0.5)  // 2.5 3.0 3.5 ...
 
-**TODO** :code:`cycle(iterable)`
+:code:`cycle(iterable)`
   Make an iterator returning elements from the :code:`iterable` and saving a copy of each.
 
   .. code:: javascript
