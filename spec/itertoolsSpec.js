@@ -246,7 +246,6 @@ describe("itertools", () => {
   });
 
   it("combinationsWithReplacement", () => {
-    pending("TODO: implement combinationsWithReplacement");
     const cwr = combinationsWithReplacement;
 
     expect(() => cwr("abc")).toThrowError(Error, "r must be a number");
@@ -267,7 +266,7 @@ describe("itertools", () => {
     for (const n of range(7)) {
       const values = Array.from(range(n)).map((x) => 5 * x - 12);
       for (const r of range(n + 2)) {
-        const result = cloneTuples(combinations(values, r));
+        const result = cloneTuples(cwr(values, r));
 
         expect(result.length).toBe(numcombs(n, r));
         expect(result.length).toBe(new Set(result).size);
@@ -275,13 +274,13 @@ describe("itertools", () => {
 
         const regularCombs = combinations(values, r);
         if (n === 0 || r <= 1) {
-          expect(result).toEqual(regularCombs);
+          expect(result).toYieldFromIterator(regularCombs);
         }
         else {
           for (const comb of regularCombs) expect(result).toContain(comb);
         }
 
-        for (const c in result) {
+        for (const c of result) {
           expect(c.length).toBe(r);
           const noruns = [];
           for (const [k] of groupBy(c)) noruns.push(k);

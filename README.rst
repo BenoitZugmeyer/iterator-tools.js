@@ -40,7 +40,7 @@ Functions
     combinations('ABCD', 2)    // AB AC AD BC BD CD
     combinations(range(4), 3)  // 012 013 023 123
 
-**TODO** :code:`combinationsWithReplacement(iterable, r)`
+:code:`combinationsWithReplacement(iterable, r)`
   Return :code:`r` length subsequences of elements from the input :code:`iterable` allowing
   individual elements to be repeated more than once.
 

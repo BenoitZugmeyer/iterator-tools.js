@@ -153,45 +153,52 @@ class ChainIterator extends Iterator {
 
 class CombinationsIterator extends Iterator {
 
-  constructor(iterable, r) {
+  constructor(iterable, r, withReplacement=false) {
     super();
     assertType(r, "number", "r");
     assertPositive(r, "r");
     assertInteger(r, "r");
     assertIterable(iterable);
+    this._withReplacement = withReplacement;
     this._pool = Array.from(iterable);
     this._value = [];
-    this._indices = Array.from(range(r));
+    this._indices = [];
+    for (let i = 0; i < r; i += 1) this._indices[i] = withReplacement ? 0 : i;
     this._first = true;
   }
 
   _next() {
     const r = this._indices.length;
     const n = this._pool.length;
+    const indices = this._indices;
 
-    if (r > n) return;
+    if ((!this._withReplacement || n === 0) && r > n) return;
 
     if (this._first) {
       this._first = false;
-      for (let i = 0; i < r; i += 1) this._value[i] = this._pool[i];
-      this._yieldValue(this._value);
-      return;
     }
+    else {
+      let indice;
+      for (let i = r - 1; i >= 0; i -= 1) {
+        const limit = this._withReplacement ? n - 1 : i + n - r;
+        if (indices[i] !== limit) {
+          indice = i;
+          break;
+        }
+      }
+      if (indice === undefined) return;
 
-    let indice;
-    for (let i = r - 1; i >= 0; i -= 1) {
-      if (this._indices[i] !== i + n - r) {
-        indice = i;
-        break;
+      if (this._withReplacement) {
+        const replace = indices[indice] + 1;
+        for (let i = indice; i < r; i += 1) indices[i] = replace;
+      }
+      else {
+        indices[indice] += 1;
+        for (let i = indice + 1; i < r; i += 1) indices[i] = indices[i - 1] + 1;
       }
     }
-    if (indice === undefined) return;
 
-    this._indices[indice] += 1;
-
-    for (let i = indice + 1; i < r; i += 1) this._indices[i] = this._indices[i - 1] + 1;
-
-    for (let i = 0; i < r; i += 1) this._value[i] = this._pool[this._indices[i]];
+    for (let i = 0; i < r; i += 1) this._value[i] = this._pool[indices[i]];
     this._yieldValue(this._value);
   }
 
@@ -347,6 +354,8 @@ export const accumulate        = factory(AccumulateIterator);
 export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
 export const combinations      = factory(CombinationsIterator);
+export const combinationsWithReplacement
+                               = (iterable, r) => new CombinationsIterator(iterable, r, true);
 export const count             = factory(CountIterator);
 export const groupBy           = factory(GroupByIterator);
 export const slice             = factory(SliceIterator);
