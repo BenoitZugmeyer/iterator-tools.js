@@ -308,42 +308,6 @@ class GroupByInnerIterator extends Iterator {
 
 }
 
-class SliceIterator extends Iterator {
-
-  constructor(iterable, start, stop, step) {
-    super();
-
-    this._sliceArgs(start, stop, step);
-    assertPositive(this._start, "start");
-    assertPositive(this._stop, "stop");
-    assertPositive(this._step, "step");
-    assertInteger(this._start, "start");
-    assertInteger(this._stop, "stop");
-    assertInteger(this._step, "step");
-
-    this._iterator = iter(iterable);
-    this._i = 0;
-    this._nexti = this._start;
-  }
-
-  _next() {
-    while (true) {
-      if (this._i >= this._stop) return;
-
-      const item = this._iterator.next();
-      if (item.done) return;
-
-      this._i += 1;
-
-      if (this._i > this._nexti) {
-        this._nexti += this._step;
-        return this._yieldValue(item.value);
-      }
-    }
-  }
-
-}
-
 class RangeIterator extends Iterator {
 
   constructor(start, stop, step) {
@@ -375,6 +339,42 @@ class RepeatIterator extends Iterator {
     if (this._times > 0) {
       this._yieldValue(this._object);
       this._times -= 1;
+    }
+  }
+
+}
+
+class SliceIterator extends Iterator {
+
+  constructor(iterable, start, stop, step) {
+    super();
+
+    this._sliceArgs(start, stop, step);
+    assertPositive(this._start, "start");
+    assertPositive(this._stop, "stop");
+    assertPositive(this._step, "step");
+    assertInteger(this._start, "start");
+    assertInteger(this._stop, "stop");
+    assertInteger(this._step, "step");
+
+    this._iterator = iter(iterable);
+    this._i = 0;
+    this._nexti = this._start;
+  }
+
+  _next() {
+    while (true) {
+      if (this._i >= this._stop) return;
+
+      const item = this._iterator.next();
+      if (item.done) return;
+
+      this._i += 1;
+
+      if (this._i > this._nexti) {
+        this._nexti += this._step;
+        return this._yieldValue(item.value);
+      }
     }
   }
 
@@ -412,9 +412,9 @@ export const compress          = factory(CompressIterator);
 export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
 export const cycle             = factory(CycleIterator);
 export const groupBy           = factory(GroupByIterator);
-export const slice             = factory(SliceIterator);
 export const range             = factory(RangeIterator);
 export const repeat            = factory(RepeatIterator);
+export const slice             = factory(SliceIterator);
 export const zip               = (...iterables) => new ZipIterator(iterables);
 
 
