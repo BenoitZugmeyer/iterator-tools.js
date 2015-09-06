@@ -21,6 +21,7 @@ import {
   repeat,
   slice,
   takeWhile,
+  tee,
   zip,
   zipLongest,
 } from "../index";
@@ -462,6 +463,66 @@ describe("itertools", () => {
     const t = takeWhile([1, 1, 1, 0, 0, 0]);
     expect(t).toYield(1, 1, 1);
     expect(t.next().done).toBe(true);
+  });
+
+  describe("tee", () => {
+
+    it("simple cases", () => {
+      const n = 200;
+
+      let a, b;
+
+      [a, b] = tee([]);
+      expect(a).toYield();
+      expect(b).toYield();
+
+      [a, b] = tee(range(n));
+      expect(zip(a, b)).toYieldFromIterator(zip(range(n), range(n)));
+
+      [a, b] = tee(range(n));
+      expect(a).toYieldFromIterator(range(n));
+      expect(b).toYieldFromIterator(range(n));
+
+      const randomLetters = "tsapchahjrlmcynbwjpuadbdygfjwgkuoouxwovqwlxdvrxusbmbtneizwuvoogxdnpmij";
+      [a, b] = tee(randomLetters);
+      expect(a).toYieldFromIterator(randomLetters[Symbol.iterator]());
+      expect(b).toYieldFromIterator(randomLetters[Symbol.iterator]());
+    });
+
+    it("throws exception when given wrong arguments", () => {
+      expect(() => tee()).toThrowError(Error, "undefined is not iterable");
+      expect(() => tee(3)).toThrowError(Error, "3 is not iterable");
+      expect(() => tee([1, 2], "x")).toThrowError(Error, "n must be a number");
+      expect(() => tee([1, 2], -1)).toThrowError(Error, "n must be positive");
+    });
+
+    it("works with long-lagged and multi-way split", () => {
+      const [a, b, c] = tee(range(2000), 3);
+      for (const i of range(100)) {
+        expect(a.next().value).toBe(i);
+      }
+      expect(b).toYieldFromIterator(range(2000));
+      expect(c.next().value).toBe(0);
+      expect(c.next().value).toBe(1);
+      expect(a).toYieldFromIterator(range(100, 2000));
+      expect(c).toYieldFromIterator(range(2, 2000));
+    });
+
+    it("works with various values of n", () => {
+      for (const n of range(5)) {
+        const result = tee("abc", n);
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBe(n);
+        for (const r of result) expect(r).toYieldFromIterator("abc"[Symbol.iterator]());
+      }
+    });
+
+    it("returns TeeIterator instances directly", () => {
+      const [a] = tee("abc");
+      const [c] = tee(a);
+      expect(c).toBe(a);
+    });
+
   });
 
   it("zip", () => {

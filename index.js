@@ -459,6 +459,33 @@ class SliceIterator extends Iterator {
 
 }
 
+class TeeIterator extends Iterator {
+
+  constructor(iterator, pool) {
+    super();
+    this._pool = pool;
+    pool.push(this);
+    this._iterator = iterator;
+    this._buffer = [];
+    this._iteratorDone = false;
+  }
+
+  _next() {
+    if (this._buffer.length) return this._yieldValue(this._buffer.shift());
+    if (this._iteratorDone) return;
+
+    const { done, value } = this._iterator.next();
+    if (done) {
+      for (const other of this._pool) if (other !== this) other._iteratorDone = true;
+    }
+    else {
+      this._yieldValue(value);
+      for (const other of this._pool) if (other !== this) other._buffer.push(value);
+    }
+  }
+
+}
+
 export const accumulate        = factory(AccumulateIterator);
 export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
@@ -490,6 +517,29 @@ export const repeat            = factory(RepeatIterator);
 export const slice             = factory(SliceIterator);
 export const takeWhile         = (iterable, predicate) =>
   new FilterIterator(iterable, predicate, { finishOnFalse: true });
+export const tee = (iterable, n=2) => {
+  assertType(n, "number", "n");
+  assertPositive(n, "n");
+
+  let iterator = iter(iterable);
+  let pool;
+  const result = [];
+
+  if (n === 0) return result;
+
+  if (iterator instanceof TeeIterator) {
+    result.push(iterator);
+    pool = iterator._pool;
+    iterator = iterator._iterator;
+    n -= 1;
+  } else {
+    pool = [];
+  }
+
+  for (let i = 0; i < n; i++) result.push(new TeeIterator(iterator, pool));
+
+  return result;
+};
 export const zip               = (...iterables) => new MapIterator(iterables);
 export const zipLongest        = (...args) => {
   const fillValue = args.length && typeof args[args.length - 1][Symbol.iterator] !== "function" ?

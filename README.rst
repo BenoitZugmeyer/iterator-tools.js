@@ -200,7 +200,7 @@ Functions
     takeWhile([1, 4, 6, 4, 1], (x) => x < 5)  // 1 4
 
 
-**TODO** :code:`tee(iterable, n=2)`
+:code:`tee(iterable, n=2)`
   Return :code:`n` independent iterators from a single :code:`iterable`.
 
   .. code:: javascript
