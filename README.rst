@@ -133,7 +133,7 @@ Functions
     mapApply([[2, 5], [3, 2], [10, 3]], Math.pow)  // 32 9 1000
 
 
-**TODO** :code:`permutations(iterable, r=undefined)`
+:code:`permutations(iterable, r=undefined)`
   Return successive :code:`r` length permutations of elements in the :code:`iterable`.
 
   If :code:`r` is undefined, :code:`r` defaults to the length of the :code:`iterable` and all

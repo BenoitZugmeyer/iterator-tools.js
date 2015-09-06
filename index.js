@@ -121,11 +121,12 @@ class CombinatoryIterator extends Iterator {
     if (this._first) {
       this._first = false;
       this._initIndices();
+      if (this._maxIndice === undefined) this._maxIndice = this._indices.length;
     }
     else {
       let indice;
-      for (let i = this._indices.length - 1; i >= 0; i -= 1) {
-        if (this._indices[i] !== this._getLimit(i)) {
+      for (let i = this._maxIndice - 1; i >= 0; i -= 1) {
+        if (this._indices[i] !== this._nextLimit(i)) {
           indice = i;
           break;
         }
@@ -135,7 +136,7 @@ class CombinatoryIterator extends Iterator {
       this._nextIndices(indice);
     }
 
-    for (let i = 0; i < this._indices.length; i += 1) {
+    for (let i = 0; i < this._maxIndice; i += 1) {
       this._value[i] = this._pool ? this._pool[this._indices[i]] : this._pools[i][this._indices[i]];
     }
     this._yieldValue(this._value);
@@ -208,7 +209,7 @@ class CombinationsIterator extends CombinatoryIterator {
     for (let i = 0; i < this._repeat; i += 1) this._indices[i] = i;
   }
 
-  _getLimit(indice) {
+  _nextLimit(indice) {
     return indice + this._pool.length - this._indices.length;
   }
 
@@ -232,7 +233,7 @@ class CombinationsWithReplacementIterator extends CombinatoryIterator {
     for (let i = 0; i < this._repeat; i += 1) this._indices[i] = 0;
   }
 
-  _getLimit() {
+  _nextLimit() {
     return this._pool.length - 1;
   }
 
@@ -426,6 +427,47 @@ class MapIterator extends Iterator {
 
 }
 
+class PermutationsIterator extends CombinatoryIterator {
+
+  constructor(iterable, repeat) {
+    assertIterable(iterable);
+    const pool = Array.from(iterable);
+    super(repeat === undefined ? pool.length : repeat);
+    this._pool = pool;
+    if (this._repeat > pool.length) this._finish();
+    this._maxIndice = this._repeat;
+  }
+
+  _initIndices() {
+    const n = this._pool.length;
+    for (let i = 0; i < n; i += 1) this._indices[i] = i;
+    this._cycles = [];
+    for (let i = n; i > n - this._repeat; i -= 1) this._cycles.push(i);
+  }
+
+  _nextLimit(indice) {
+    const cycles = this._cycles;
+    const indices = this._indices;
+    cycles[indice] -= 1;
+    if (cycles[indice] === 0) {
+      const result = indices[indice];
+      for (let i = indice; i < indices.length - 1; i += 1) indices[i] = indices[i + 1];
+      indices[indices.length - 1] = result;
+      cycles[indice] = this._pool.length - indice;
+      return result;
+    }
+  }
+
+  _nextIndices(indice) {
+    const j = this._cycles[indice];
+    const n = this._indices.length;
+    const tmp = this._indices[indice];
+    this._indices[indice] = this._indices[n - j];
+    this._indices[n - j] = tmp;
+  }
+
+}
+
 class ProductIterator extends CombinatoryIterator {
 
   constructor(iterables, repeat=1) {
@@ -455,7 +497,7 @@ class ProductIterator extends CombinatoryIterator {
     for (let i = 0; i < this._pools.length; i += 1) this._indices.push(0);
   }
 
-  _getLimit(i) {
+  _nextLimit(i) {
     return this._pools[i].length - 1;
   }
 
@@ -604,6 +646,8 @@ export const mapApply = (...args) => {
   assertType(fn, "function", "fn");
   return new MapIterator(args, { fn, apply: true });
 };
+
+export const permutations = (iterable, repeat) => new PermutationsIterator(iterable, repeat);
 
 export const product = (...args) => {
   const r = typeof args[args.length - 1] === "number" ? args.pop() : 1;

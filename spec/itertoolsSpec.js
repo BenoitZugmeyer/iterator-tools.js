@@ -17,6 +17,7 @@ import {
   groupBy,
   map,
   mapApply,
+  permutations,
   product,
   range,
   repeat,
@@ -347,6 +348,36 @@ describe("itertools", () => {
     expect(() => mapApply([null], Math.pow).next()).toThrowError(Error, "null is not iterable");
     expect(() => mapApply(Math.pow)).toThrowError(Error, "at least one iterable must be provided");
     expect(() => mapApply([[4, 5]], 10).next()).toThrowError(Error, "fn must be a function");
+  });
+
+  it("permutations", () => {
+    expect(() => permutations()).toThrowError(Error, "undefined is not iterable");
+    expect(() => permutations(null)).toThrowError(Error, "null is not iterable");
+    expect(() => permutations("abc", -2)).toThrowError(Error, "repeat must be positive");
+    expect(permutations("abc", 32)).toYield();
+    expect(() => permutations("abc", "s")).toThrowError(Error, "repeat must be a number");
+    expect(permutations(range(3), 2)).toYield([0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1]);
+
+    for (const n of range(7)) {
+      const values = Array.from(range(n)).map((x) => 5 * x - 12);
+      for (const r of range(n + 2)) {
+        const result = cloneTuples(permutations(values, r));
+
+        expect(result.length).toBe(r > n ? 0 : fact(n) / fact(n - r));
+        expect(result.length).toBe(new Set(result).size);
+        expect(result).toEqual(sorted(result));
+
+        for (const p of result) {
+          expect(p.length).toBe(r);
+          expect(new Set(p).size).toBe(r);
+          for (const e of p) expect(values).toContain(e);
+        }
+
+        if (r === n) {
+          expect(result).toYieldFromIterator(permutations(values));
+        }
+      }
+    }
   });
 
   it("product", () => {
