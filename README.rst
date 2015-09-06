@@ -90,13 +90,13 @@ Functions
     filterFalse(range(10), (x) => x % 2)  // 1 3 5 7 9
 
 
-**TODO** :code:`filterfalse(iterable, predicate=(i) => i)`
+:code:`filterFalse(iterable, predicate=(i) => i)`
   Make an iterator that filters elements from :code:`iterable` returning only those for which the
   predicate is false. If :code:`predicate` isn't defined, return the items that are false.
 
   .. code:: javascript
 
-    filterfalse(range(10), (x) => x % 2)  // 0 2 4 6 8
+    filterFalse(range(10), (x) => x % 2)  // 0 2 4 6 8
 
 
 :code:`groupBy(iterable, key=(i) => i)`

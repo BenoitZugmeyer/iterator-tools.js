@@ -12,6 +12,7 @@ import {
   count,
   cycle,
   filter,
+  filterFalse,
   groupBy,
   range,
   repeat,
@@ -225,6 +226,16 @@ describe("itertools", () => {
     expect(slice(filter(count(), isEven), 4)).toYield(0, 2, 4, 6);
     expect(() => filter()).toThrowError(Error, "undefined is not iterable");
     expect(() => filter([], null)).toThrowError(Error, "predicate must be a function");
+  });
+
+  it("filterFalse", () => {
+    const isEven = (i) => i % 2 === 0;
+    expect(filterFalse(range(6), isEven)).toYield(1, 3, 5);
+    expect(filterFalse([0, 1, 0, 2, 0])).toYield(0, 0, 0);
+    expect(filterFalse([0, 1, 0, 2, 0], Boolean)).toYield(0, 0, 0);
+    expect(slice(filterFalse(count(), isEven), 4)).toYield(1, 3, 5, 7);
+    expect(() => filterFalse()).toThrowError(Error, "undefined is not iterable");
+    expect(() => filterFalse([], null)).toThrowError(Error, "predicate must be a function");
   });
 
   describe("groupBy", () => {

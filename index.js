@@ -435,6 +435,7 @@ export const compress          = factory(CompressIterator);
 export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
 export const cycle             = factory(CycleIterator);
 export const filter            = (iterable, predicate) => new FilterIterator(iterable, predicate);
+export const filterFalse       = (iterable, predicate) => new FilterIterator(iterable, predicate, true);
 export const groupBy           = factory(GroupByIterator);
 export const range             = factory(RangeIterator);
 export const repeat            = factory(RepeatIterator);
