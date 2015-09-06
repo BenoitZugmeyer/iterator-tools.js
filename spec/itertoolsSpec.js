@@ -17,6 +17,7 @@ import {
   groupBy,
   map,
   mapApply,
+  product,
   range,
   repeat,
   slice,
@@ -89,9 +90,9 @@ describe("itertools", () => {
   });
 
   it("combinations", () => {
-    expect(() => combinations("abc")).toThrowError(Error, "r must be a number");
+    expect(() => combinations("abc")).toThrowError(Error, "repeat must be a number");
     expect(() => combinations(null, 1)).toThrowError(Error, "null is not iterable");
-    expect(() => combinations("abc", -2)).toThrowError(Error, "r must be positive");
+    expect(() => combinations("abc", -2)).toThrowError(Error, "repeat must be positive");
 
     expect(combinations("abc", 32)).toYield();
     expect(combinations("ABCD", 2)).toYield(["A","B"], ["A","C"], ["A","D"], ["B","C"],
@@ -127,9 +128,9 @@ describe("itertools", () => {
   it("combinationsWithReplacement", () => {
     const cwr = combinationsWithReplacement;
 
-    expect(() => cwr("abc")).toThrowError(Error, "r must be a number");
+    expect(() => cwr("abc")).toThrowError(Error, "repeat must be a number");
     expect(() => cwr(null, 1)).toThrowError(Error, "null is not iterable");
-    expect(() => cwr("abc", -2)).toThrowError(Error, "r must be positive");
+    expect(() => cwr("abc", -2)).toThrowError(Error, "repeat must be positive");
 
 
     expect(cwr('ABC', 2)).toYield(['A', 'A'], ['A', 'B'], ['A', 'C'], ['B', 'B'],
@@ -346,6 +347,24 @@ describe("itertools", () => {
     expect(() => mapApply([null], Math.pow).next()).toThrowError(Error, "null is not iterable");
     expect(() => mapApply(Math.pow)).toThrowError(Error, "at least one iterable must be provided");
     expect(() => mapApply([[4, 5]], 10).next()).toThrowError(Error, "fn must be a function");
+  });
+
+  it("product", () => {
+    const testSimpleCase = (args, expected) => {
+      expect(product(...args)).toYield(...expected);
+      expect(product(...args, ...args)).toYieldFromIterator(product(...args, 2));
+      expect(product(...args, ...args, ...args)).toYieldFromIterator(product(...args, 3));
+    };
+
+    expect(product([])).toYield();
+    testSimpleCase([], []);
+    testSimpleCase(['ab'], [['a'], ['b']]);
+    testSimpleCase([[0, 1], [0, 1, 2]], [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]]);
+    testSimpleCase([[], [0, 1], [0, 1, 2]], []);
+    testSimpleCase([[0, 1], [], [0, 1, 2]], []);
+    testSimpleCase([[0, 1], [0, 1, 2], []], []);
+    expect(() => product([], null)).toThrowError(Error, "null is not iterable");
+    expect(() => product(null).next()).toThrowError(Error, "null is not iterable");
   });
 
   it("range", () => {

@@ -57,6 +57,11 @@ class Iterator {
     this._done = false;
   }
 
+  _finish() {
+    this._item = DONE;
+    this._done = true;
+  }
+
   _yieldValue(value) {
     assert(this._done, "Called yieldValue twice");
     this._done = false;
@@ -88,13 +93,52 @@ class Iterator {
     if (!this._done) {
       this._done = true;
       this._next();
-      if (this._done) this._item = DONE;
+      if (this._done) this._finish();
     }
     return this._item;
   }
 
   [Symbol.iterator]() {
     return this;
+  }
+
+}
+
+class CombinatoryIterator extends Iterator {
+
+  constructor(repeat) {
+    super();
+    assertType(repeat, "number", "repeat");
+    assertPositive(repeat, "repeat");
+    assertInteger(repeat, "repeat");
+    this._repeat = repeat;
+    this._indices = [];
+    this._value = [];
+    this._first = true;
+  }
+
+  _next() {
+    if (this._first) {
+      this._first = false;
+      this._initIndices();
+    }
+    else {
+      let indice;
+      for (let i = this._indices.length - 1; i >= 0; i -= 1) {
+        if (this._indices[i] !== this._getLimit(i)) {
+          indice = i;
+          break;
+        }
+      }
+      if (indice === undefined) return;
+
+      this._nextIndices(indice);
+    }
+
+    for (let i = 0; i < this._indices.length; i += 1) {
+      this._value[i] = this._pool ? this._pool[this._indices[i]] : this._pools[i][this._indices[i]];
+    }
+    this._yieldValue(this._value);
   }
 
 }
@@ -151,55 +195,50 @@ class ChainIterator extends Iterator {
 
 }
 
-class CombinationsIterator extends Iterator {
+class CombinationsIterator extends CombinatoryIterator {
 
-  constructor(iterable, r, withReplacement=false) {
-    super();
-    assertType(r, "number", "r");
-    assertPositive(r, "r");
-    assertInteger(r, "r");
+  constructor(iterable, repeat) {
+    super(repeat);
     assertIterable(iterable);
-    this._withReplacement = withReplacement;
     this._pool = Array.from(iterable);
-    this._value = [];
-    this._indices = [];
-    for (let i = 0; i < r; i += 1) this._indices[i] = withReplacement ? 0 : i;
-    this._first = true;
+    if (this._repeat > this._pool.length) this._finish();
   }
 
-  _next() {
-    const r = this._indices.length;
-    const n = this._pool.length;
-    const indices = this._indices;
+  _initIndices() {
+    for (let i = 0; i < this._repeat; i += 1) this._indices[i] = i;
+  }
 
-    if ((!this._withReplacement || n === 0) && r > n) return;
+  _getLimit(indice) {
+    return indice + this._pool.length - this._indices.length;
+  }
 
-    if (this._first) {
-      this._first = false;
-    }
-    else {
-      let indice;
-      for (let i = r - 1; i >= 0; i -= 1) {
-        const limit = this._withReplacement ? n - 1 : i + n - r;
-        if (indices[i] !== limit) {
-          indice = i;
-          break;
-        }
-      }
-      if (indice === undefined) return;
+  _nextIndices(indice) {
+    this._indices[indice] += 1;
+    for (let i = indice + 1; i < this._indices.length; i += 1) this._indices[i] = this._indices[i - 1] + 1;
+  }
 
-      if (this._withReplacement) {
-        const replace = indices[indice] + 1;
-        for (let i = indice; i < r; i += 1) indices[i] = replace;
-      }
-      else {
-        indices[indice] += 1;
-        for (let i = indice + 1; i < r; i += 1) indices[i] = indices[i - 1] + 1;
-      }
-    }
+}
 
-    for (let i = 0; i < r; i += 1) this._value[i] = this._pool[indices[i]];
-    this._yieldValue(this._value);
+class CombinationsWithReplacementIterator extends CombinatoryIterator {
+
+  constructor(iterable, repeat) {
+    super(repeat);
+    assertIterable(iterable);
+    this._pool = Array.from(iterable);
+    if (this._pool.length === 0 && this._repeat > 0) this._finish();
+  }
+
+  _initIndices() {
+    for (let i = 0; i < this._repeat; i += 1) this._indices[i] = 0;
+  }
+
+  _getLimit() {
+    return this._pool.length - 1;
+  }
+
+  _nextIndices(indice) {
+    const replace = this._indices[indice] + 1;
+    for (let i = indice; i < this._repeat; i += 1) this._indices[i] = replace;
   }
 
 }
@@ -387,6 +426,46 @@ class MapIterator extends Iterator {
 
 }
 
+class ProductIterator extends CombinatoryIterator {
+
+  constructor(iterables, repeat=1) {
+    super(repeat);
+
+    for (const iterable of iterables) assertIterable(iterable);
+
+    if (iterables.length === 0 || repeat === 0) {
+      this._finish();
+      return;
+    }
+
+    const pools = iterables.map((iterable) => Array.from(iterable));
+
+    for (const pool of pools) {
+      if (pool.length === 0) {
+        this._finish();
+        return;
+      }
+    }
+
+    this._pools = [];
+    for (let i = 0; i < repeat; i += 1) this._pools.push.apply(this._pools, pools);
+  }
+
+  _initIndices() {
+    for (let i = 0; i < this._pools.length; i += 1) this._indices.push(0);
+  }
+
+  _getLimit(i) {
+    return this._pools[i].length - 1;
+  }
+
+  _nextIndices(indice) {
+    this._indices[indice] += 1;
+    for (let j = indice + 1; j < this._pools.length; j += 1) this._indices[j] = 0;
+  }
+
+}
+
 class RangeIterator extends Iterator {
 
   constructor(start, stop, step) {
@@ -495,7 +574,7 @@ export const chainFromIterable = factory(ChainIterator);
 export const combinations = (iterable, r) => new CombinationsIterator(iterable, r);
 
 export const combinationsWithReplacement = (iterable, r) =>
-  new CombinationsIterator(iterable, r, true);
+  new CombinationsWithReplacementIterator(iterable, r);
 
 export const compress = factory(CompressIterator);
 
@@ -525,6 +604,11 @@ export const mapApply = (...args) => {
   assertType(fn, "function", "fn");
   return new MapIterator(args, { fn, apply: true });
 };
+
+export const product = (...args) => {
+  const r = typeof args[args.length - 1] === "number" ? args.pop() : 1;
+  return new ProductIterator(args, r);
+}
 
 export const range = factory(RangeIterator);
 
