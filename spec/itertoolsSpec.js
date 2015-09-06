@@ -15,6 +15,7 @@ import {
   filterFalse,
   groupBy,
   map,
+  mapApply,
   range,
   repeat,
   slice,
@@ -321,6 +322,16 @@ describe("itertools", () => {
     expect(() => map()).toThrowError(Error, "at least one iterable must be provided");
     expect(() => map([1], [2], null)).toThrowError(Error, "fn must be a function");
     expect(() => map(Math.pow)).toThrowError(Error, "at least one iterable must be provided");
+  });
+
+  it("mapApply", () => {
+    expect(mapApply(zip(range(3), range(1, 7)), Math.pow)).toYield(0, 1, 8);
+    expect(slice(mapApply(zip(count(), count(1)), Math.pow), 3)).toYield(0, 1, 8);
+    expect(mapApply([], Math.pow)).toYield();
+    expect(mapApply([range(4, 6)], Math.pow)).toYield(Math.pow(4, 5));
+    expect(() => mapApply([null], Math.pow).next()).toThrowError(Error, "null is not iterable");
+    expect(() => mapApply()).toThrowError(Error, "at least one iterable must be provided");
+    expect(() => mapApply([[4, 5]], 10).next()).toThrowError(Error, "fn must be a function");
   });
 
   it("range", () => {

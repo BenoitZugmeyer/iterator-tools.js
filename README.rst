@@ -123,6 +123,16 @@ Functions
     map([1, 2], [3, 4], (a, b) => a + b)  // 4 6
 
 
+:code:`mapApply(...iterable, fn)`
+  Make an iterator that computes the :code:`function` using arguments obtained from the
+  :code:`iterables`. Used instead of :code:`map()` when argument parameters are already grouped in
+  arrays from a single :code:`iterable`.
+
+  .. code:: javascript
+
+    mapApply([[2, 5], [3, 2], [10, 3]], Math.pow)  // 32 9 1000
+
+
 **TODO** :code:`permutations(iterable, r=undefined)`
   Return successive :code:`r` length permutations of elements in the :code:`iterable`.
 
@@ -166,6 +176,7 @@ Functions
 
     repeat(10, 3)  // 10 10 10
 
+
 :code:`slice(iterable, stop=Infinity)` or :code:`slice(iterable, start=0, stop=Infinity, step=1)`
   Make an iterator that returns selected elements from the :code:`iterable`. If :code:`start` is
   non-zero, then elements from the iterable are skipped until :code:`start` is reached. Afterward,
@@ -178,15 +189,6 @@ Functions
     slice('ABCDEFG', 2, 4)            // C D
     slice('ABCDEFG', 2, Infinity)     // C D E F G
     slice('ABCDEFG', 0, Infinity, 2)  // A C E G
-
-**TODO** :code:`starmap(iterable, function)`
-  Make an iterator that computes the :code:`function` using arguments obtained from the
-  :code:`iterable`. Used instead of :code:`map()` when argument parameters are already grouped in
-  arrays from a single :code:`iterable`.
-
-  .. code:: javascript
-
-    starmap(pow, [[2, 5], [3, 2], [10, 3]])  // 32 9 1000
 
 
 **TODO** :code:`takewhile(iterable, predicate=(i) => i)`

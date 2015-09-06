@@ -333,20 +333,29 @@ class GroupByInnerIterator extends Iterator {
 
 class MapIterator extends Iterator {
 
-  constructor(iterables, fn) {
+  constructor(iterables, fn, apply=false) {
     super();
     assert(iterables.length, "at least one iterable must be provided");
     assertType(fn, "function", "fn");
     this._iterators = iterables.map(iter);
     this._fn = fn;
     this._args = [];
+    this._apply = apply;
   }
 
   _next() {
     for (const iterator of this._iterators) {
       const item = iterator.next();
       if (item.done) return;
-      this._args.push(item.value);
+      if (this._apply) {
+        assertIterable(item.value);
+        for (const v of item.value) {
+          this._args.push(v);
+        }
+      }
+      else {
+        this._args.push(item.value);
+      }
     }
 
     this._yieldValue(this._fn.apply(null, this._args));
@@ -467,6 +476,12 @@ export const map               = (...args) => {
   let fn;
   if (typeof last === "function") fn = args.pop();
   return new MapIterator(args, fn);
+};
+export const mapApply = (...args) => {
+  const last = args[args.length - 1];
+  let fn;
+  if (typeof last === "function") fn = args.pop();
+  return new MapIterator(args, fn, true);
 };
 export const range             = factory(RangeIterator);
 export const repeat            = factory(RepeatIterator);
