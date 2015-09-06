@@ -104,19 +104,6 @@ Functions
                                 // A, A A
                                 // B, B B
 
-:code:`slice(iterable, stop=Infinity)` or :code:`slice(iterable, start=0, stop=Infinity, step=1)`
-  Make an iterator that returns selected elements from the :code:`iterable`. If :code:`start` is
-  non-zero, then elements from the iterable are skipped until :code:`start` is reached. Afterward,
-  elements are returned consecutively unless :code:`step` is set higher than one which results in
-  items being skipped.
-
-  .. code:: javascript
-
-    slice('ABCDEFG', 2)               // A B
-    slice('ABCDEFG', 2, 4)            // C D
-    slice('ABCDEFG', 2, Infinity)     // C D E F G
-    slice('ABCDEFG', 0, Infinity, 2)  // A C E G
-
 **TODO** :code:`permutations(iterable, r=undefined)`
   Return successive :code:`r` length permutations of elements in the :code:`iterable`.
 
@@ -159,6 +146,19 @@ Functions
   .. code:: javascript
 
     repeat(10, 3)  // 10 10 10
+
+:code:`slice(iterable, stop=Infinity)` or :code:`slice(iterable, start=0, stop=Infinity, step=1)`
+  Make an iterator that returns selected elements from the :code:`iterable`. If :code:`start` is
+  non-zero, then elements from the iterable are skipped until :code:`start` is reached. Afterward,
+  elements are returned consecutively unless :code:`step` is set higher than one which results in
+  items being skipped.
+
+  .. code:: javascript
+
+    slice('ABCDEFG', 2)               // A B
+    slice('ABCDEFG', 2, 4)            // C D
+    slice('ABCDEFG', 2, Infinity)     // C D E F G
+    slice('ABCDEFG', 0, Infinity, 2)  // A C E G
 
 **TODO** :code:`starmap(iterable, function)`
   Make an iterator that computes the :code:`function` using arguments obtained from the
