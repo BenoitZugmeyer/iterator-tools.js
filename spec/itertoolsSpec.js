@@ -11,6 +11,7 @@ import {
   compress,
   count,
   cycle,
+  dropWhile,
   filter,
   filterFalse,
   groupBy,
@@ -19,6 +20,7 @@ import {
   range,
   repeat,
   slice,
+  takeWhile,
   zip,
   zipLongest,
 } from "../index";
@@ -219,6 +221,16 @@ describe("itertools", () => {
     expect(() => cycle()).toThrowError(Error, "undefined is not iterable");
     expect(() => cycle(5)).toThrowError(Error, "5 is not iterable");
     expect(slice(cycle(range(3)), 10)).toYield(0, 1, 2, 0, 1, 2, 0, 1, 2, 0)
+  });
+
+  it("dropWhile", () => {
+    const data = [1, 3, 5, 20, 2, 4, 6, 8];
+    const underTen = (i) => i < 10;
+    expect(dropWhile(data, underTen)).toYield(20, 2, 4, 6, 8);
+    expect(dropWhile([], underTen)).toYield();
+    expect(() => dropWhile()).toThrowError(Error, "undefined is not iterable");
+    expect(() => dropWhile(null, Math.pow)).toThrowError(Error, "null is not iterable");
+    expect(() => dropWhile([], "a")).toThrowError(Error, "predicate must be a function");
   });
 
   it("filter", () => {
@@ -437,6 +449,19 @@ describe("itertools", () => {
       expect(slice(c, 1, 3, 50)).toYield(1);
       expect(c.next().value).toBe(3);
     });
+  });
+
+  it("takeWhile", () => {
+    const data = [1, 3, 5, 20, 2, 4, 6, 8];
+    const underTen = (i) => i < 10;
+    expect(takeWhile(data, underTen)).toYield(1, 3, 5);
+    expect(takeWhile([], underTen)).toYield();
+    expect(() => takeWhile()).toThrowError(Error, "undefined is not iterable");
+    expect(() => takeWhile(null, Math.pow)).toThrowError(Error, "null is not iterable");
+    expect(() => takeWhile([], "a")).toThrowError(Error, "predicate must be a function");
+    const t = takeWhile([1, 1, 1, 0, 0, 0]);
+    expect(t).toYield(1, 1, 1);
+    expect(t.next().done).toBe(true);
   });
 
   it("zip", () => {

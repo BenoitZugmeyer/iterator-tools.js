@@ -72,13 +72,13 @@ Functions
 
       cycle('ABCD')  // A B C D A B C D A B C D ...
 
-**TODO** :code:`dropwhile(iterable, predicate)`
+:code:`dropWhile(iterable, predicate=(i) => i)`
   Make an iterator that drops elements from the :code:`iterable` as long as the :code:`predicate` is
   true; afterwards, returns every element.
 
   .. code:: javascript
 
-    dropwhile([1, 4, 6, 4, 1], (x) => x < 5)  // 6 4 1
+    dropWhile([1, 4, 6, 4, 1], (x) => x < 5)  // 6 4 1
 
 
 :code:`filter(iterable, predicate=(i) => i)`
@@ -191,13 +191,13 @@ Functions
     slice('ABCDEFG', 0, Infinity, 2)  // A C E G
 
 
-**TODO** :code:`takewhile(iterable, predicate=(i) => i)`
+:code:`takeWhile(iterable, predicate=(i) => i)`
   Make an iterator that returns elements from the :code:`iterable` as long as the :code:`predicate`
   is true.
 
   .. code:: javascript
 
-    takewhile([1, 4, 6, 4, 1], (x) => x < 5)  // 1 4
+    takeWhile([1, 4, 6, 4, 1], (x) => x < 5)  // 1 4
 
 
 **TODO** :code:`tee(iterable, n=2)`

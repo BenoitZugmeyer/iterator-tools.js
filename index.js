@@ -259,22 +259,32 @@ class CycleIterator extends Iterator {
 
 class FilterIterator extends Iterator {
 
-  constructor(iterable, predicate=identity, exclude=false) {
+  constructor(iterable, predicate=identity, { exclude=false, finishOnFalse=false }={}) {
     super();
     assertType(predicate, "function", "predicate");
+    assertType(exclude, "boolean", "options.exclude");
     this._iterator = iter(iterable);
     this._predicate = predicate;
     this._exclude = exclude;
+    this._finishOnFalse = finishOnFalse;
+    this._finished = false;
   }
 
   _next() {
-    while (true) {
-      const item = this._iterator.next();
-      if (item.done) return;
+    while (!this._finished) {
+      const { done, value } = this._iterator.next();
+      if (done) return;
 
-      if (Boolean(this._predicate(item.value)) !== this._exclude) {
-        return this._yieldValue(item.value);
-      }
+      const predicateResult = Boolean(this._predicate(value));
+
+      this._finished = this._finishOnFalse && !predicateResult;
+
+      if (predicateResult !== this._exclude) return this._yieldValue(value);
+    }
+
+    if (this._exclude) {
+      const { done, value } = this._iterator.next();
+      if (!done) this._yieldValue(value);
     }
   }
 
@@ -458,8 +468,12 @@ export const combinationsWithReplacement
 export const compress          = factory(CompressIterator);
 export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
 export const cycle             = factory(CycleIterator);
-export const filter            = (iterable, predicate) => new FilterIterator(iterable, predicate);
-export const filterFalse       = (iterable, predicate) => new FilterIterator(iterable, predicate, true);
+export const dropWhile         = (iterable, predicate) =>
+  new FilterIterator(iterable, predicate, { exclude: true, finishOnFalse: true });
+export const filter            = (iterable, predicate) =>
+  new FilterIterator(iterable, predicate);
+export const filterFalse       = (iterable, predicate) =>
+  new FilterIterator(iterable, predicate, { exclude: true });
 export const groupBy           = factory(GroupByIterator);
 export const map               = (...args) => {
   const fn = args.pop();
@@ -474,6 +488,8 @@ export const mapApply = (...args) => {
 export const range             = factory(RangeIterator);
 export const repeat            = factory(RepeatIterator);
 export const slice             = factory(SliceIterator);
+export const takeWhile         = (iterable, predicate) =>
+  new FilterIterator(iterable, predicate, { finishOnFalse: true });
 export const zip               = (...iterables) => new MapIterator(iterables);
 export const zipLongest        = (...args) => {
   const fillValue = args.length && typeof args[args.length - 1][Symbol.iterator] !== "function" ?
