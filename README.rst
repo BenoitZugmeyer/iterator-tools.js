@@ -80,6 +80,16 @@ Functions
 
     dropwhile([1, 4, 6, 4, 1], (x) => x < 5)  // 6 4 1
 
+
+:code:`filter(iterable, predicate=(i) => i)`
+  Make an iterator that filters elements from :code:`iterable` returning only those for which the
+  predicate is true. If :code:`predicate` isn't defined, return the items that are true.
+
+  .. code:: javascript
+
+    filterFalse(range(10), (x) => x % 2)  // 1 3 5 7 9
+
+
 **TODO** :code:`filterfalse(iterable, predicate=(i) => i)`
   Make an iterator that filters elements from :code:`iterable` returning only those for which the
   predicate is false. If :code:`predicate` isn't defined, return the items that are false.

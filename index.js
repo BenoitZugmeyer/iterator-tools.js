@@ -257,6 +257,29 @@ class CycleIterator extends Iterator {
 
 }
 
+class FilterIterator extends Iterator {
+
+  constructor(iterable, predicate=identity, exclude=false) {
+    super();
+    assertType(predicate, "function", "predicate");
+    this._iterator = iter(iterable);
+    this._predicate = predicate;
+    this._exclude = exclude;
+  }
+
+  _next() {
+    while (true) {
+      const item = this._iterator.next();
+      if (item.done) return;
+
+      if (Boolean(this._predicate(item.value)) !== this._exclude) {
+        return this._yieldValue(item.value);
+      }
+    }
+  }
+
+}
+
 const GROUPBY_NO_KEY = {};
 
 class GroupByIterator extends Iterator {
@@ -411,6 +434,7 @@ export const combinationsWithReplacement
 export const compress          = factory(CompressIterator);
 export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
 export const cycle             = factory(CycleIterator);
+export const filter            = (iterable, predicate) => new FilterIterator(iterable, predicate);
 export const groupBy           = factory(GroupByIterator);
 export const range             = factory(RangeIterator);
 export const repeat            = factory(RepeatIterator);
