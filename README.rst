@@ -114,6 +114,15 @@ Functions
                                 // A, A A
                                 // B, B B
 
+
+:code:`map(...iterable, fn)`
+  Make an iterator that computes the function using arguments obtained from the :code:`iterables`.
+
+  .. code:: javascript
+
+    map([1, 2], [3, 4], (a, b) => a + b)  // 4 6
+
+
 **TODO** :code:`permutations(iterable, r=undefined)`
   Return successive :code:`r` length permutations of elements in the :code:`iterable`.
 
