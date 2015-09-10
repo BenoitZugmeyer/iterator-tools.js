@@ -221,7 +221,7 @@ Functions
 
     zip('ABCD', 'xy')  // [A, x] [B, y]
 
-**TODO** :code:`zipLongest(...iterables)`
+:code:`zipLongest(...iterables)`
   Make an iterator that aggregates elements from each of the :code:`iterables`. If the
   :code:`iterables` are of uneven length, missing values are filled-in with :code:`undefined`.
 
