@@ -319,7 +319,7 @@ describe("itertools", () => {
     expect(slice(map("abc", count(), (...args) => args), 2)).toYield(["a", 0], ["b", 1]);
     expect(map([], Math.pow)).toYield();
 
-    expect(() => map()).toThrowError(Error, "at least one iterable must be provided");
+    expect(() => map(Math.pow)).toThrowError(Error, "at least one iterable must be provided");
     expect(() => map([1], [2], null)).toThrowError(Error, "fn must be a function");
     expect(() => map(Math.pow)).toThrowError(Error, "at least one iterable must be provided");
   });
@@ -330,7 +330,7 @@ describe("itertools", () => {
     expect(mapApply([], Math.pow)).toYield();
     expect(mapApply([range(4, 6)], Math.pow)).toYield(Math.pow(4, 5));
     expect(() => mapApply([null], Math.pow).next()).toThrowError(Error, "null is not iterable");
-    expect(() => mapApply()).toThrowError(Error, "at least one iterable must be provided");
+    expect(() => mapApply(Math.pow)).toThrowError(Error, "at least one iterable must be provided");
     expect(() => mapApply([[4, 5]], 10).next()).toThrowError(Error, "fn must be a function");
   });
 
@@ -444,11 +444,11 @@ describe("itertools", () => {
     expect(zip("abcdef", range(3))).toYield(["a", 0], ["b", 1], ["c", 2]);
     expect(slice(zip("abcdef", count()), 3)).toYield(["a", 0], ["b", 1], ["c", 2]);
     expect(zip("abc")).toYield(["a"], ["b"], ["c"]);
-    expect(zip()).toYield();
     expect(zip("abc", "def", "ghi")).toYield(["a", "d", "g"], ["b", "e", "h"], ["c", "f", "i"]);
 
     expect(() => zip(3).next()).toThrowError(Error, "3 is not iterable");
     expect(() => zip(range(3), 3).next()).toThrowError(Error, "3 is not iterable");
+    expect(() => zip()).toThrowError(Error, "at least one iterable must be provided");
 
     // Array reusability
     const it = zip("abc");

@@ -333,17 +333,18 @@ class GroupByInnerIterator extends Iterator {
 
 class MapIterator extends Iterator {
 
-  constructor(iterables, fn, apply=false) {
+  constructor(iterables, options={}) {
     super();
+    if (options.fn) assertType(options.fn, "function", "fn");
     assert(iterables.length, "at least one iterable must be provided");
-    assertType(fn, "function", "fn");
     this._iterators = iterables.map(iter);
-    this._fn = fn;
+    this._fn = options.fn || false;
+    this._apply = options.apply || false;
     this._args = [];
-    this._apply = apply;
   }
 
   _next() {
+    this._args.length = 0;
     for (const iterator of this._iterators) {
       const item = iterator.next();
       if (item.done) return;
@@ -358,9 +359,7 @@ class MapIterator extends Iterator {
       }
     }
 
-    this._yieldValue(this._fn.apply(null, this._args));
-
-    this._args.length = 0;
+    this._yieldValue(this._fn ? this._fn.apply(null, this._args) : this._args);
   }
 
 }
@@ -437,28 +436,6 @@ class SliceIterator extends Iterator {
 
 }
 
-class ZipIterator extends Iterator {
-
-  constructor(iterables) {
-    super();
-    this._iterators = iterables.map(iter);
-    this._value = [];
-  }
-
-  _next() {
-    const l = this._iterators.length;
-    if (l) {
-      for (let i = 0; i < l; i++) {
-        const item = this._iterators[i].next();
-        if (item.done) return;
-        this._value[i] = item.value;
-      }
-      this._yieldValue(this._value);
-    }
-  }
-
-}
-
 export const accumulate        = factory(AccumulateIterator);
 export const chain             = (...iterables) => new ChainIterator(iterables);
 export const chainFromIterable = factory(ChainIterator);
@@ -472,21 +449,19 @@ export const filter            = (iterable, predicate) => new FilterIterator(ite
 export const filterFalse       = (iterable, predicate) => new FilterIterator(iterable, predicate, true);
 export const groupBy           = factory(GroupByIterator);
 export const map               = (...args) => {
-  const last = args[args.length - 1];
-  let fn;
-  if (typeof last === "function") fn = args.pop();
-  return new MapIterator(args, fn);
+  const fn = args.pop();
+  assertType(fn, "function", "fn");
+  return new MapIterator(args, { fn });
 };
 export const mapApply = (...args) => {
-  const last = args[args.length - 1];
-  let fn;
-  if (typeof last === "function") fn = args.pop();
-  return new MapIterator(args, fn, true);
+  const fn = args.pop();
+  assertType(fn, "function", "fn");
+  return new MapIterator(args, { fn, apply: true });
 };
 export const range             = factory(RangeIterator);
 export const repeat            = factory(RepeatIterator);
 export const slice             = factory(SliceIterator);
-export const zip               = (...iterables) => new ZipIterator(iterables);
+export const zip               = (...iterables) => new MapIterator(iterables);
 
 
 // DRAFT
