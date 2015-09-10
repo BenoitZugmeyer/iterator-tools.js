@@ -20,13 +20,14 @@ import {
   repeat,
   slice,
   zip,
+  zipLongest,
 } from "../index";
 
 const fact = (n) => n <= 1 ? 1 : n * fact(n - 1);
 const cmp = (a, b) => {
   if (Array.isArray(a)) {
     if (!Array.isArray(b)) throw new Error(`Can't compare ${a} with ${b}`);
-    for (const [va, vb] of zip(a, b)) { // TODO use zipLonguest
+    for (const [va, vb] of zip(a, b)) { // TODO use zipLongest
       const r = cmp(va, vb);
       if (r) return r;
     }
@@ -453,6 +454,37 @@ describe("itertools", () => {
     // Array reusability
     const it = zip("abc");
     expect(it.next().value).toBe(it.next().value);
+  });
+
+  it("zipLongest", () => {
+    const testSimpleCase = (...args) => {
+      args = args.map((a) => Array.from(a));
+      let target = [];
+      for (const i of range(Math.max(...args.map((a) => a.length)))) {
+        const t = [];
+        for (const arg of args) t.push(i < arg.length ? arg[i] : undefined);
+        target.push(t);
+      }
+      expect(zipLongest(...args)).toYieldFromIterator(target[Symbol.iterator]());
+      target = target.map((t) => t.map((e) => e === undefined ? "x" : e));
+      expect(zipLongest(...args, { fillValue: "x" })).toYieldFromIterator(target[Symbol.iterator]());
+    };
+
+    testSimpleCase('abc', range(6));
+    testSimpleCase(range(6), 'abc');
+    testSimpleCase(range(1000), range(2000, 2100), range(3000, 3050));
+    testSimpleCase(range(1000), range(0), range(3000, 3050), range(1200), range(1500));
+    testSimpleCase(range(1000), range(0), range(3000, 3050), range(1200), range(1500), range(0));
+
+    expect(slice(zipLongest("abcdef", count()), 3)).toYield(["a", 0], ["b", 1], ["c", 2]);
+
+    expect(() => zipLongest()).toThrowError(Error, "at least one iterable must be provided");
+    expect(zipLongest([])).toYield();
+    expect(zipLongest("abcdef")).toYieldFromIterator(zip("abcdef"));
+
+    expect(zipLongest("abc", "defg", {})).toYield(["a", "d"], ["b", "e"], ["c", "f"], [undefined, "g"]);
+
+    expect(zipLongest("abc", "def")).toYieldFromIterator(zip("abc", "def"));
   });
 
 });

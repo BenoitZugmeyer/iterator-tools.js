@@ -340,26 +340,39 @@ class MapIterator extends Iterator {
     this._iterators = iterables.map(iter);
     this._fn = options.fn || false;
     this._apply = options.apply || false;
+    this._longest = options.longest || false;
+    this._fillValue = options.fillValue;
     this._args = [];
   }
 
   _next() {
     this._args.length = 0;
+    let allExhausted = true;
     for (const iterator of this._iterators) {
-      const item = iterator.next();
-      if (item.done) return;
+      let { done, value } = iterator.next();  // eslint-disable-line prefer-const
+
+      if (done) {
+        if (!this._longest) return;
+        value = this._fillValue;
+      }
+      else {
+        allExhausted = false;
+      }
+
       if (this._apply) {
-        assertIterable(item.value);
-        for (const v of item.value) {
+        assertIterable(value);
+        for (const v of value) {
           this._args.push(v);
         }
       }
       else {
-        this._args.push(item.value);
+        this._args.push(value);
       }
     }
 
-    this._yieldValue(this._fn ? this._fn.apply(null, this._args) : this._args);
+    if (!allExhausted) {
+      this._yieldValue(this._fn ? this._fn.apply(null, this._args) : this._args);
+    }
   }
 
 }
@@ -462,7 +475,12 @@ export const range             = factory(RangeIterator);
 export const repeat            = factory(RepeatIterator);
 export const slice             = factory(SliceIterator);
 export const zip               = (...iterables) => new MapIterator(iterables);
-
+export const zipLongest        = (...args) => {
+  const fillValue = args.length && typeof args[args.length - 1][Symbol.iterator] !== "function" ?
+    args.pop().fillValue :
+    undefined;
+  return new MapIterator(args, { longest: true, fillValue });
+}
 
 // DRAFT
 
