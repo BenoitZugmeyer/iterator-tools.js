@@ -343,15 +343,15 @@ class GroupByInnerIterator extends Iterator {
 
 class MapIterator extends Iterator {
 
-  constructor(iterables, options={}) {
+  constructor(iterables, { fn, apply=false, longest=false, fillValue }={}) {
     super();
-    if (options.fn) assertType(options.fn, "function", "fn");
+    if (fn !== undefined) assertType(fn, "function", "fn");
     assert(iterables.length, "at least one iterable must be provided");
     this._iterators = iterables.map(iter);
-    this._fn = options.fn || false;
-    this._apply = options.apply || false;
-    this._longest = options.longest || false;
-    this._fillValue = options.fillValue;
+    this._fn = fn;
+    this._apply = apply;
+    this._longest = longest;
+    this._fillValue = fillValue;
     this._args = [];
   }
 
