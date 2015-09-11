@@ -486,37 +486,55 @@ class TeeIterator extends Iterator {
 
 }
 
-export const accumulate        = factory(AccumulateIterator);
-export const chain             = (...iterables) => new ChainIterator(iterables);
+export const accumulate = factory(AccumulateIterator);
+
+export const chain = (...iterables) => new ChainIterator(iterables);
+
 export const chainFromIterable = factory(ChainIterator);
-export const combinations      = (iterable, r) => new CombinationsIterator(iterable, r);
-export const combinationsWithReplacement
-                               = (iterable, r) => new CombinationsIterator(iterable, r, true);
-export const compress          = factory(CompressIterator);
-export const count             = (start=0, step=1) => new RangeIterator(start, Infinity, step);
-export const cycle             = factory(CycleIterator);
-export const dropWhile         = (iterable, predicate) =>
+
+export const combinations = (iterable, r) => new CombinationsIterator(iterable, r);
+
+export const combinationsWithReplacement = (iterable, r) =>
+  new CombinationsIterator(iterable, r, true);
+
+export const compress = factory(CompressIterator);
+
+export const count = (start=0, step=1) => new RangeIterator(start, Infinity, step);
+
+export const cycle = factory(CycleIterator);
+
+export const dropWhile = (iterable, predicate) =>
   new FilterIterator(iterable, predicate, { exclude: true, finishOnFalse: true });
-export const filter            = (iterable, predicate) =>
+
+export const filter = (iterable, predicate) =>
   new FilterIterator(iterable, predicate);
-export const filterFalse       = (iterable, predicate) =>
+
+export const filterFalse = (iterable, predicate) =>
   new FilterIterator(iterable, predicate, { exclude: true });
-export const groupBy           = factory(GroupByIterator);
-export const map               = (...args) => {
+
+export const groupBy = factory(GroupByIterator);
+
+export const map = (...args) => {
   const fn = args.pop();
   assertType(fn, "function", "fn");
   return new MapIterator(args, { fn });
 };
+
 export const mapApply = (...args) => {
   const fn = args.pop();
   assertType(fn, "function", "fn");
   return new MapIterator(args, { fn, apply: true });
 };
-export const range             = factory(RangeIterator);
-export const repeat            = factory(RepeatIterator);
-export const slice             = factory(SliceIterator);
-export const takeWhile         = (iterable, predicate) =>
+
+export const range = factory(RangeIterator);
+
+export const repeat = factory(RepeatIterator);
+
+export const slice = factory(SliceIterator);
+
+export const takeWhile = (iterable, predicate) =>
   new FilterIterator(iterable, predicate, { finishOnFalse: true });
+
 export const tee = (iterable, n=2) => {
   assertType(n, "number", "n");
   assertPositive(n, "n");
@@ -540,8 +558,10 @@ export const tee = (iterable, n=2) => {
 
   return result;
 };
-export const zip               = (...iterables) => new MapIterator(iterables);
-export const zipLongest        = (...args) => {
+
+export const zip = (...iterables) => new MapIterator(iterables);
+
+export const zipLongest = (...args) => {
   const fillValue = args.length && typeof args[args.length - 1][Symbol.iterator] !== "function" ?
     args.pop().fillValue :
     undefined;
