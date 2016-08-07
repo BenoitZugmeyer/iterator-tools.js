@@ -4,7 +4,7 @@
   "license": "ISC",
   "author": "Benoît Zugmeyer <benoit@zugmeyer.com>",
   "description": "Iterator tools for JavaScript",
-  "repository": "https://github.com/BenoitZugmeyer/iterator-tools",
+  "repository": "https://github.com/BenoitZugmeyer/iterator-tools.js",
   "main": "dist/index.js",
   "esnext:main": "index.js",
   "scripts": {
