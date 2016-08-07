@@ -1,6 +1,6 @@
 {
-  "name": "itertools",
-  "version": "1.0.0-dev",
+  "name": "iterator-tools",
+  "version": "1.0.0-dev.0",
   "description": "Iterator tools for JavaScript",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,8 @@
   "keywords": [
     "iterator",
     "itertools",
+    "map",
+    "filter",
     "python"
   ],
   "author": "Benoît Zugmeyer <benoit@zugmeyer.com>",
