@@ -53,7 +53,7 @@ const cloneTuples = (iterable) => {
 
 const sorted = (iterable) => Array.from(iterable).sort(cmp);
 
-describe("itertools", () => {
+describe("iterator-tools", () => {
 
   it("reuse the value object", () => {
     const it = count();

@@ -1,6 +1,6 @@
-============
-itertools.js
-============
+=================
+iterator-tools.js
+=================
 
 Iterator tools inspired from the python standard library.
 
