@@ -1,6 +1,6 @@
 {
   "name": "iterator-tools",
-  "version": "1.0.0-dev.1",
+  "version": "1.0.0-dev.2",
   "license": "ISC",
   "author": "Benoît Zugmeyer <benoit@zugmeyer.com>",
   "description": "Iterator tools for JavaScript",
