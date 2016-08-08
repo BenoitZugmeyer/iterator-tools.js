@@ -1,9 +1,9 @@
 /*
  * This quite ugly script is here to transform my ReStructuredText readme to a format acceptable to
- * NPM.  NPM accepts only Markdown files, which would be fine if Markdown wasn't so limited in its
- * format.  For example, I use code sample nested in list definition. Well, Markdown does not
- * support this.  Luckily, the library NPM is using to convert Markdown to HTML is quite permissive,
- * and this script does the job for it.
+ * NPM.  NPM accepts only Markdown files, which would be fine if Markdown wasn't so limited format.
+ * For example, I use code sample nested in list definition.  Well, Markdown does not support this.
+ * Luckily, the library NPM is using to convert Markdown to HTML is quite permissive, and this
+ * script does the job for it.
  */
 /*eslint no-console: 0*/
 /*eslint-env node*/
