@@ -1,0 +1,17 @@
+{
+  "name": "iterator-tools",
+  "dependencies": {
+    "first-mate": {
+      "version": "5.1.1",
+      "from": "first-mate@>=5.1.1 <6.0.0",
+      "resolved": "https://registry.npmjs.org/first-mate/-/first-mate-5.1.1.tgz",
+      "dependencies": {
+        "oniguruma": {
+          "version": "6.1.0",
+          "from": "oniguruma@>=6.1.0 <7.0.0",
+          "resolved": "https://registry.npmjs.org/oniguruma/-/oniguruma-6.1.0.tgz"
+        }
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@
   "main": "dist/index.js",
   "esnext:main": "index.js",
   "scripts": {
-    "prepublish": "mkdir -p dist && rollup -f cjs index.js > dist/index.js",
+    "prepublish": "node tools/rst2npmreadme.js && mkdir -p dist && rollup -f cjs index.js > dist/index.js",
     "test": "babel-node $(npm bin)/jasmine",
     "lint": "eslint ."
   },
@@ -23,8 +23,11 @@
     "babel-cli": "^6.11.4",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.11.5",
     "eslint": "^3.2.2",
+    "html-entities": "^1.2.0",
     "jasmine": "^2.3.2",
-    "rollup": "^0.34.7"
+    "marky-markdown": "^8.1.0",
+    "rollup": "^0.34.7",
+    "trumpet": "^1.7.2"
   },
   "files": [
     "dist/index.js"
