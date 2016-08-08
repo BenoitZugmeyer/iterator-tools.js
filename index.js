@@ -652,7 +652,7 @@ export const permutations = (iterable, repeat) => new PermutationsIterator(itera
 export const product = (...args) => {
   const r = typeof args[args.length - 1] === "number" ? args.pop() : 1;
   return new ProductIterator(args, r);
-}
+};
 
 export const range = factory(RangeIterator);
 
@@ -694,4 +694,4 @@ export const zipLongest = (...args) => {
     args.pop().fillValue :
     undefined;
   return new MapIterator(args, { longest: true, fillValue });
-}
+};

@@ -134,13 +134,13 @@ describe("iterator-tools", () => {
     expect(() => cwr("abc", -2)).toThrowError(Error, "repeat must be positive");
 
 
-    expect(cwr('ABC', 2)).toYield(['A', 'A'], ['A', 'B'], ['A', 'C'], ['B', 'B'],
-                                  ['B', 'C'], ['C', 'C']);
+    expect(cwr("ABC", 2)).toYield(["A", "A"], ["A", "B"], ["A", "C"], ["B", "B"],
+                                  ["B", "C"], ["C", "C"]);
 
-    const testIntermediate = cwr('ABC', 2);
+    const testIntermediate = cwr("ABC", 2);
     testIntermediate.next();
-    expect(testIntermediate).toYield(['A', 'B'], ['A', 'C'], ['B', 'B'], ['B', 'C'],
-                                     ['C', 'C']);
+    expect(testIntermediate).toYield(["A", "B"], ["A", "C"], ["B", "B"], ["B", "C"],
+                                     ["C", "C"]);
 
     const numcombs = (n, r) => n ? fact(n + r - 1) / fact(r) / fact(n - 1) : r ? 0 : 1;
 
@@ -223,7 +223,7 @@ describe("iterator-tools", () => {
     expect(cycle("")).toYield();
     expect(() => cycle()).toThrowError(Error, "undefined is not iterable");
     expect(() => cycle(5)).toThrowError(Error, "5 is not iterable");
-    expect(slice(cycle(range(3)), 10)).toYield(0, 1, 2, 0, 1, 2, 0, 1, 2, 0)
+    expect(slice(cycle(range(3)), 10)).toYield(0, 1, 2, 0, 1, 2, 0, 1, 2, 0);
   });
 
   it("dropWhile", () => {
@@ -321,10 +321,10 @@ describe("iterator-tools", () => {
       expect(keys).toEqual(["a", "b", "r"]);
 
       const lengths = [];
-      for (const [k, g] of groupBy(sorted(s))) {
+      for (const [k, g] of groupBy(sorted(t))) {
         lengths.push([Array.from(g).length, k]);
       }
-      expect(lengths).toEqual[[[5, "a"], [2, "b"], [1, "c"], [1, "d"], [2, "r"]]];
+      expect(lengths).toEqual([[5, "a"], [2, "b"], [1, "c"], [1, "d"], [2, "r"]]);
     });
   });
 
@@ -389,7 +389,7 @@ describe("iterator-tools", () => {
 
     expect(product([])).toYield();
     testSimpleCase([], []);
-    testSimpleCase(['ab'], [['a'], ['b']]);
+    testSimpleCase(["ab"], [["a"], ["b"]]);
     testSimpleCase([[0, 1], [0, 1, 2]], [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]]);
     testSimpleCase([[], [0, 1], [0, 1, 2]], []);
     testSimpleCase([[0, 1], [], [0, 1, 2]], []);
@@ -606,8 +606,8 @@ describe("iterator-tools", () => {
       expect(zipLongest(...args, { fillValue: "x" })).toYieldFromIterator(target[Symbol.iterator]());
     };
 
-    testSimpleCase('abc', range(6));
-    testSimpleCase(range(6), 'abc');
+    testSimpleCase("abc", range(6));
+    testSimpleCase(range(6), "abc");
     testSimpleCase(range(1000), range(2000, 2100), range(3000, 3050));
     testSimpleCase(range(1000), range(0), range(3000, 3050), range(1200), range(1500));
     testSimpleCase(range(1000), range(0), range(3000, 3050), range(1200), range(1500), range(0));
