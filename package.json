@@ -20,7 +20,8 @@
     "python"
   ],
   "devDependencies": {
-    "babel": "^5.8.23",
+    "babel-cli": "^6.11.4",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.11.5",
     "jasmine": "^2.3.2",
     "rollup": "^0.34.7"
   },
