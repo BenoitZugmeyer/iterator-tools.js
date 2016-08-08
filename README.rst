@@ -2,7 +2,7 @@
 iterator-tools.js
 =================
 
-Iterator tools inspired from the python standard library.
+Iterator tools inspired by the python standard library.
 
 Functions
 =========
